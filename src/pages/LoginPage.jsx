@@ -1,0 +1,83 @@
+import { useLogin } from '@/hooks/useAuth';
+import LoginForm from '@/components/LoginForm';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useState } from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { ClockIcon, CheckCircle, UserCheck } from 'lucide-react';
+
+const LoginPage = () => {
+  const { mutate: login, isPending, isError, error } = useLogin();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { user, refetchUser } = useAuth();
+
+  const onSubmit = async (data) => {
+    login(data, {
+      onSuccess: () => {
+        refetchUser();
+        setIsLoggedIn(true);
+      },
+    });
+  };
+
+  if (isLoggedIn) {
+    const userRole = user.data.role;
+    return <Navigate to={`/dashboard/${userRole}`} replace />;
+  }
+
+  return (
+    <div className="bg-gray-100">
+      <div className="container mx-auto min-h-screen bg-gray-100 flex justify-center items-center gap-5">
+        <LoginForm onSubmit={onSubmit} isLoading={isPending} />
+
+        <div className="hidden lg:flex lg:flex-col lg:w-2/5 p-8">
+          <div className="flex items-center gap-3 mb-6">
+            <ClockIcon className="text-emerald-600" size={32} />
+            <h1 className="text-3xl font-bold text-gray-900">
+              Smart Attendance
+            </h1>
+          </div>
+
+          <div className="space-y-6">
+            <div className="flex items-start gap-4">
+              <CheckCircle className="text-emerald-600 mt-1" size={24} />
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-1">
+                  Effortless Tracking
+                </h3>
+                <p className="text-gray-600">
+                  Streamline your attendance management with our intuitive
+                  system. Monitor attendance in real-time and generate instant
+                  reports.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <UserCheck className="text-emerald-600 mt-1" size={24} />
+              <div>
+                <h3 className="font-semibold text-gray-900 mb-1">
+                  Smart Analytics
+                </h3>
+                <p className="text-gray-600">
+                  Get valuable insights into attendance patterns, helping you
+                  make informed decisions and improve organizational efficiency.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {isError && (
+          <Alert className="border-red-600 mt-4 fixed top-2">
+            <AlertDescription className="text-red-600">
+              {error?.message || 'An unexpected error occurred.'}
+            </AlertDescription>
+          </Alert>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default LoginPage;
