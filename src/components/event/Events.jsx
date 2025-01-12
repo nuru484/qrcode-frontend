@@ -54,7 +54,7 @@ const Events = () => {
   }
 
   return (
-    <div className="space-y-4 w-full mx-auto py-4">
+    <div className="space-y-4 w-full max-w-3xl mx-auto">
       {events.data.map((event) => (
         <Card
           key={event.id}
@@ -65,7 +65,7 @@ const Events = () => {
             <div className="flex items-center gap-2">
               <button
                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                onClick={() => navigate(`/dashboard/events/${event.id}`)}
+                onClick={() => navigate(`/dashboard/event/${event.id}`)}
                 title="View Details"
               >
                 <Info className="w-5 h-5 text-blue-600" />
@@ -73,7 +73,9 @@ const Events = () => {
               {user?.data.role === 'ADMIN' && (
                 <button
                   className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                  onClick={() => console.log('Edit clicked:', event.title)}
+                  onClick={() =>
+                    navigate(`/dashboard/update-event/${event.id}`)
+                  }
                   title="Edit Event"
                 >
                   <Pencil className="w-5 h-5 text-gray-600" />

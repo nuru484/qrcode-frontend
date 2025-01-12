@@ -11,3 +11,7 @@ export const fetchEvents = async () => {
 export const createEvent = async (credentials) => {
   return await api.post(`/event`, credentials);
 };
+
+export const updateEvent = async (id, credentials) => {
+  return await api.put(`/event/${id}`, credentials);
+};

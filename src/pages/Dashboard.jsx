@@ -4,7 +4,7 @@ import { Outlet } from 'react-router-dom';
 
 export default function Layout() {
   return (
-    <div className="container bg-blue mx-auto">
+    <div className="container mx-auto">
       <SidebarProvider>
         <AppSidebar />
         <main className="container bg-white w-full p-4 space-y-4">

@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useCreateEvent } from '@/hooks/useEvent';
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useUpdateEvent } from '@/hooks/useEvent';
 import EventForm from '@/components/event/EventForm';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
@@ -11,22 +11,49 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
-const CreateEventPage = () => {
-  const { mutate: createEvent, isPending, isError, error } = useCreateEvent();
+import { api } from '@/api';
+
+const UpdateEventPage = () => {
+  const { id } = useParams();
+  const { mutate: updateEvent, isPending, isError, error } = useUpdateEvent();
+  const [eventData, setEventData] = useState(null);
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const fetchEvent = async () => {
+      try {
+        const response = await api.get(`/event/${id}`);
+
+        const { Attendance, Registration, ...rest } = response.data;
+
+        setEventData(rest);
+      } catch (err) {
+        console.error('Failed to fetch event:', err);
+      }
+    };
+
+    fetchEvent();
+  }, [id]);
+
   const onSubmit = async (data) => {
-    createEvent(data, {
-      onSuccess: () => {
-        setSuccess(true);
-      },
-    });
+    updateEvent(
+      { id, data },
+      {
+        onSuccess: () => {
+          setSuccess(true);
+        },
+      }
+    );
   };
 
   const handleRedirect = () => {
-    navigate('/dashboard');
+    navigate(`/dashboard/event/${id}`);
   };
+
+  if (!eventData) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="container mx-auto min-h-screen">
@@ -34,8 +61,9 @@ const CreateEventPage = () => {
         <EventForm
           onSubmit={onSubmit}
           isLoading={isPending}
+          defaultValues={eventData}
           onCancel={() => {
-            navigate(`/dashboard`);
+            navigate(`/dashboard/event/${id}`);
           }}
         />
       </div>
@@ -56,10 +84,10 @@ const CreateEventPage = () => {
         >
           <AlertDialogContent>
             <AlertDialogTitle role="alert">
-              Event Created Successfully.
+              Event Updated Successfully.
             </AlertDialogTitle>
             <AlertDialogDescription>
-              Your event creation was successful! Click &quot;Okay&quot; to
+              Your event update was successful! Click &quot;Okay&quot; to
               proceed to your dashboard.
             </AlertDialogDescription>
             <AlertDialogAction
@@ -76,4 +104,4 @@ const CreateEventPage = () => {
   );
 };
 
-export default CreateEventPage;
+export default UpdateEventPage;

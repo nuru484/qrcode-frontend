@@ -1,7 +1,17 @@
+import React from 'react';
 import { useEvent } from '@/hooks/useEvent';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, MapPin, Tag, Users, ClipboardList } from 'lucide-react';
+import {
+  Calendar,
+  MapPin,
+  Tag,
+  Users,
+  ClipboardList,
+  ArrowLeft,
+  Pencil,
+  Trash,
+} from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 const Event = () => {
@@ -11,11 +21,12 @@ const Event = () => {
 
   if (isLoading) {
     return (
-      <Card className="w-11/12 max-w-2xl mx-auto mt-8">
+      <Card className="w-full max-w-3xl mx-auto mt-8">
         <CardContent className="p-6">
           <div className="animate-pulse space-y-4">
-            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+            <div className="h-8 bg-gray-200 rounded w-3/4"></div>
             <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            <div className="h-32 bg-gray-200 rounded"></div>
           </div>
         </CardContent>
       </Card>
@@ -24,20 +35,18 @@ const Event = () => {
 
   if (isError) {
     return (
-      <Card className="w-11/12 max-w-2xl mx-auto mt-8  border-red-600">
-        <div className="flex items-center justify-center flex-wrap">
-          <CardContent className="p-6">
-            <p className="text-red-500 font-medium">Error: {error.message}</p>
-          </CardContent>
+      <Card className="w-full max-w-3xl mx-auto mt-8">
+        <CardContent className="p-6">
+          <div className="text-red-500">Error: {error.message}</div>
           <Button
-            className="bg-emerald-600 m-4 hover:bg-emerald-500"
-            onClick={() => {
-              navigate('/dashboard/STUDENT');
-            }}
+            variant="outline"
+            className="mt-4"
+            onClick={() => navigate('/dashboard')}
           >
-            Home
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Home
           </Button>
-        </div>
+        </CardContent>
       </Card>
     );
   }
@@ -54,48 +63,76 @@ const Event = () => {
 
   const isPastEvent = new Date(date) > new Date();
 
+  const handleDelete = async () => {
+    if (window.confirm('Are you sure you want to delete this event?')) {
+      navigate('/dashboard');
+    }
+  };
+
+  const handleUpdate = () => {
+    navigate(`/dashboard/update-event/${id}`);
+  };
+
   return (
-    <div>
-      <Card className="w-full mx-auto my-4 shadow-lg">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">{title}</CardTitle>
-          <div className="flex items-center text-gray-500 text-sm">
-            <Tag className="w-4 h-4 mr-1" />
+    <Card className="w-full max-w-3xl mx-auto">
+      <CardHeader className="flex flex-col md:flex-row md:justify-between md:items-center">
+        <Button
+          variant="ghost"
+          className="self-start p-0 md:px-4 md:py-2 md:self-auto mb-2 md:mb-0"
+          onClick={() => navigate(`/dashboard/events`)}
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back
+        </Button>
+        <div className="flex gap-2 justify-between">
+          <Button variant="outline" onClick={handleUpdate}>
+            <Pencil className="w-4 h-4 " />
+            Edit
+          </Button>
+          <Button variant="destructive" onClick={handleDelete}>
+            <Trash className="w-4 h-4 " />
+            Delete
+          </Button>
+        </div>
+      </CardHeader>
+
+      <CardContent className="p-6 space-y-6">
+        <div>
+          <CardTitle className="text-2xl mb-2">{title}</CardTitle>
+          <div className="flex items-center text-gray-500 mb-2">
+            <Tag className="w-4 h-4 mr-2" />
             {category}
           </div>
-        </CardHeader>
+        </div>
 
-        <CardContent className="space-y-6">
-          <p className="text-gray-600">{description}</p>
+        <p className="text-gray-700">{description}</p>
 
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2 text-gray-600">
-              <Calendar className="w-5 h-5" />
-              <span>{new Date(date).toLocaleString()}</span>
-            </div>
-
-            <div className="flex items-center space-x-2 text-gray-600">
-              <MapPin className="w-5 h-5" />
-              <span>{location}</span>
-            </div>
+        <div className="flex flex-col space-y-4">
+          <div className="flex items-center text-gray-600">
+            <Calendar className="w-4 h-4 mr-2" />
+            {new Date(date).toLocaleString()}
           </div>
 
-          <div className="flex flex-wrap gap-4">
+          <div className="flex items-center text-gray-600">
+            <MapPin className="w-4 h-4 mr-2" />
+            {location}
+          </div>
+
+          <div className="flex gap-4">
             {isPastEvent && (
-              <Button variant="outline" className="flex items-center space-x-2">
-                <Users className="w-4 h-4" />
-                <span>Attendance ({Attendance?.length || 0})</span>
-              </Button>
+              <div className="flex items-center">
+                <Users className="w-4 h-4 mr-2" />
+                Attendance ({Attendance?.length || 0})
+              </div>
             )}
-
-            <Button variant="outline" className="flex items-center space-x-2">
-              <ClipboardList className="w-4 h-4" />
-              <span>Registrations ({Registration?.length || 0})</span>
-            </Button>
+            <div className="flex items-center">
+              <ClipboardList className="w-4 h-4 mr-2" />
+              Registrations ({Registration?.length || 0})
+            </div>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
