@@ -1,7 +1,9 @@
 import { useLogin } from '@/hooks/useAuth';
 import LoginForm from '@/components/LoginForm';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Card, CardContent } from '@/components/ui/card';
 import { useState } from 'react';
+
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { ClockIcon, CheckCircle, UserCheck } from 'lucide-react';
@@ -9,7 +11,7 @@ import { ClockIcon, CheckCircle, UserCheck } from 'lucide-react';
 const LoginPage = () => {
   const { mutate: login, isPending, isError, error } = useLogin();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const { user, refetchUser } = useAuth();
+  const { user, isLoading, refetchUser } = useAuth();
 
   const onSubmit = async (data) => {
     login(data, {
@@ -21,7 +23,20 @@ const LoginPage = () => {
   };
 
   if (isLoggedIn) {
-    const userRole = user.data.role;
+    const userRole = user?.data.role;
+
+    if (isLoading) {
+      return (
+        <Card className="w-full max-w-2xl mx-auto">
+          <CardContent className="p-6">
+            <div className="animate-pulse space-y-4">
+              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
     return <Navigate to={`/dashboard/${userRole}`} replace />;
   }
 
@@ -69,7 +84,7 @@ const LoginPage = () => {
         </div>
 
         {isError && (
-          <Alert className="border-red-600 mt-4 fixed top-2">
+          <Alert className="w-11/12 max-w-lg x-4 border-red-600 mt-8 fixed top-4">
             <AlertDescription className="text-red-600">
               {error?.message || 'An unexpected error occurred.'}
             </AlertDescription>

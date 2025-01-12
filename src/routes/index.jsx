@@ -6,6 +6,8 @@ import SignupPage from '@/pages/SignupPage';
 import StudentDashboard from '@/pages/StudentDashboard';
 import ErrorPage from '@/pages/ErrorPage';
 
+import Event from '@/components/event/Event';
+
 const Routes = () => {
   // Routes accessible only to authenticated users
   const protectedRoutes = [
@@ -25,7 +27,7 @@ const Routes = () => {
   const publicRoutes = [
     {
       path: '/',
-      element: <LoginPage />,
+      element: <Event />,
       errorElement: <ErrorPage />,
     },
 
