@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSignup } from '@/hooks/useSignup';
-import SignupForm from '@/components/SignupForm';
+import { useCreateEvent } from '@/hooks/useEvent';
+import EventForm from '@/components/event/createEventForm';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   AlertDialog,
@@ -11,13 +11,13 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
-const SignupPage = () => {
-  const { mutate: signup, isPending, isError, error } = useSignup();
+const CreateEventPage = () => {
+  const { mutate: createEvent, isPending, isError, error } = useCreateEvent();
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
   const onSubmit = async (data) => {
-    signup(data, {
+    createEvent(data, {
       onSuccess: () => {
         setSuccess(true);
       },
@@ -29,10 +29,10 @@ const SignupPage = () => {
   };
 
   return (
-    <div className="bg-gray-100">
-      <div className="container mx-auto min-h-screen bg-gray-100 flex justify-center items-center gap-5">
+    <div className="">
+      <div className="container mx-auto min-h-screen">
         <div>
-          <SignupForm onSubmit={onSubmit} isLoading={isPending} />
+          <EventForm onSubmit={onSubmit} isLoading={isPending} />
         </div>
 
         {isError && (
@@ -51,11 +51,11 @@ const SignupPage = () => {
           >
             <AlertDialogContent>
               <AlertDialogTitle role="alert">
-                Signup Successful
+                Event Created Successfully.
               </AlertDialogTitle>
               <AlertDialogDescription>
-                Your signup was successful! Click &quot;Okay&quot; to proceed to
-                your dashboard.
+                Your event creation was successful! Click &quot;Okay&quot; to
+                proceed to your dashboard.
               </AlertDialogDescription>
               <AlertDialogAction
                 className="bg-emerald-600 hover:bg-emerald-500"
@@ -72,4 +72,4 @@ const SignupPage = () => {
   );
 };
 
-export default SignupPage;
+export default CreateEventPage;

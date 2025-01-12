@@ -38,7 +38,7 @@ const items = [
     title: 'Event',
     icon: CalendarCheck2,
     subItems: [
-      { title: 'Create Event', url: 'createEvent' },
+      { title: 'Create Event', url: 'create-event' },
       { title: 'View Events', url: 'events' },
     ],
   },

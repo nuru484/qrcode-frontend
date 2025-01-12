@@ -6,6 +6,7 @@ import ErrorPage from '@/pages/ErrorPage';
 import Layout from '@/pages/Dashboard';
 import Events from '@/components/event/Events';
 import Event from '@/components/event/Event';
+import CreateEventPage from '@/pages/CreateEventPage';
 
 const Routes = () => {
   // Routes accessible only to authenticated users
@@ -19,6 +20,10 @@ const Routes = () => {
           element: <Layout />,
           errorElement: <ErrorPage />,
           children: [
+            {
+              path: '/dashboard/create-event',
+              element: <CreateEventPage />,
+            },
             {
               path: '/dashboard/events',
               element: <Events />,
@@ -37,7 +42,7 @@ const Routes = () => {
   const publicRoutes = [
     {
       path: '/',
-      element: <Layout />,
+      element: <CreateEventPage />,
       errorElement: <ErrorPage />,
     },
 
