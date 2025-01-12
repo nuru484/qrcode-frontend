@@ -1,11 +1,10 @@
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
-
 import ProtectedRoutes from './ProtectedRoutes';
 import LoginPage from '@/pages/LoginPage';
 import SignupPage from '@/pages/SignupPage';
-import StudentDashboard from '@/pages/StudentDashboard';
 import ErrorPage from '@/pages/ErrorPage';
-
+import Layout from '@/pages/Dashboard';
+import Events from '@/components/event/Events';
 import Event from '@/components/event/Event';
 
 const Routes = () => {
@@ -16,8 +15,19 @@ const Routes = () => {
       element: <ProtectedRoutes />,
       children: [
         {
-          path: '/dashboard/STUDENT',
-          element: <StudentDashboard />,
+          path: '/dashboard',
+          element: <Layout />,
+          errorElement: <ErrorPage />,
+          children: [
+            {
+              path: '/dashboard/events',
+              element: <Events />,
+            },
+            {
+              path: '/dashboard/events/:id',
+              element: <Event />,
+            },
+          ],
         },
       ],
     },
@@ -27,7 +37,7 @@ const Routes = () => {
   const publicRoutes = [
     {
       path: '/',
-      element: <Event />,
+      element: <Layout />,
       errorElement: <ErrorPage />,
     },
 
@@ -42,7 +52,6 @@ const Routes = () => {
     },
   ];
 
-  // Combine and conditionally include routes based on authentication status
   const router = createBrowserRouter([...publicRoutes, ...protectedRoutes]);
 
   return <RouterProvider router={router} />;

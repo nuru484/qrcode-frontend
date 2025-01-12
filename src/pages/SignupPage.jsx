@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
 import { useSignup } from '@/hooks/useSignup';
 import SignupForm from '@/components/SignupForm';
 import { Alert, AlertDescription } from '@/components/ui/alert';

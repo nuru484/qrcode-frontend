@@ -13,6 +13,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import schema from '@/validation/signupValidation';
+import PropTypes from 'prop-types';
 
 const SignupForm = ({ onSubmit, isLoading }) => {
   const {
@@ -280,7 +281,7 @@ const SignupForm = ({ onSubmit, isLoading }) => {
         </form>
 
         <p className="text-center mt-6 text-gray-600">
-          Already have an account?{' '}
+          Already have an account?
           <a
             href="/login"
             className="text-blue-600 hover:text-blue-500 hover:underline transition duration-200"
@@ -291,6 +292,10 @@ const SignupForm = ({ onSubmit, isLoading }) => {
       </div>
     </div>
   );
+};
+SignupForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired,
+  isLoading: PropTypes.bool,
 };
 
 export default SignupForm;

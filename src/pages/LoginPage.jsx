@@ -1,43 +1,25 @@
 import { useLogin } from '@/hooks/useAuth';
 import LoginForm from '@/components/LoginForm';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Card, CardContent } from '@/components/ui/card';
 import { useState } from 'react';
 
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
 import { ClockIcon, CheckCircle, UserCheck } from 'lucide-react';
 
 const LoginPage = () => {
   const { mutate: login, isPending, isError, error } = useLogin();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const { user, isLoading, refetchUser } = useAuth();
 
   const onSubmit = async (data) => {
     login(data, {
       onSuccess: () => {
-        refetchUser();
         setIsLoggedIn(true);
       },
     });
   };
 
   if (isLoggedIn) {
-    const userRole = user?.data.role;
-
-    if (isLoading) {
-      return (
-        <Card className="w-full max-w-2xl mx-auto">
-          <CardContent className="p-6">
-            <div className="animate-pulse space-y-4">
-              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-            </div>
-          </CardContent>
-        </Card>
-      );
-    }
-    return <Navigate to={`/dashboard/${userRole}`} replace />;
+    return <Navigate to={`/dashboard`} replace />;
   }
 
   return (
