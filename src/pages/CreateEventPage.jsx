@@ -41,7 +41,7 @@ const CreateEventPage = () => {
       </div>
 
       {isError && (
-        <Alert className="border-red-600 mt-4 fixed top-2 text-black">
+        <Alert className="w-11/12 max-w-lg fixed top-4 left-1/2 -translate-x-1/2 border-red-600 mt-4">
           <AlertDescription className="text-red-600">
             {error?.message}
           </AlertDescription>

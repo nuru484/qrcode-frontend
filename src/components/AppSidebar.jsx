@@ -32,13 +32,14 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { NavLink } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
-const items = [
+const getMenuItems = (isAdmin) => [
   {
     title: 'Event',
     icon: CalendarCheck2,
     subItems: [
-      { title: 'Create Event', url: 'create-event' },
+      ...(isAdmin ? [{ title: 'Create Event', url: 'create-event' }] : []),
       { title: 'View Events', url: 'events' },
     ],
   },
@@ -46,7 +47,7 @@ const items = [
     title: 'Attendance',
     icon: UserRoundPen,
     subItems: [
-      { title: 'Take Attendance', url: 'takeAttendance' },
+      ...(isAdmin ? [{ title: 'Take Attendance', url: 'takeAttendance' }] : []),
       { title: 'View Reports', url: 'viewReports' },
     ],
   },
@@ -59,6 +60,15 @@ const items = [
 
 export function AppSidebar() {
   const [activeItem, setActiveItem] = React.useState(null);
+  const { user } = useAuth();
+  const isAdmin = user?.data?.role === 'ADMIN';
+  const items = React.useMemo(() => getMenuItems(isAdmin), [isAdmin]);
+
+  // Filter out any menu items that have no sub-items
+  const filteredItems = React.useMemo(
+    () => items.filter((item) => item.subItems.length > 0),
+    [items]
+  );
 
   return (
     <Sidebar className="border-r">
@@ -80,9 +90,11 @@ export function AppSidebar() {
                 <DropdownMenuItem>
                   <span>Go to Dashboard</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <span>Modify Settings</span>
-                </DropdownMenuItem>
+                {isAdmin && (
+                  <DropdownMenuItem>
+                    <span>Modify Settings</span>
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </SidebarMenuItem>
@@ -93,7 +105,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item, index) => (
+              {filteredItems.map((item, index) => (
                 <Collapsible
                   key={item.title}
                   open={activeItem === index}
@@ -158,7 +170,7 @@ export function AppSidebar() {
                   tabIndex={0}
                 >
                   <User2 className="mr-2 h-4 w-4" />
-                  <span>Username</span>
+                  <span>{user?.data?.username || 'Username'}</span>
                   <ChevronUp className="ml-auto h-4 w-4" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
@@ -169,9 +181,11 @@ export function AppSidebar() {
                 <DropdownMenuItem>
                   <span>Account</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <span>Billing</span>
-                </DropdownMenuItem>
+                {isAdmin && (
+                  <DropdownMenuItem>
+                    <span>Billing</span>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem className="text-red-500">
                   <span>Sign out</span>
                 </DropdownMenuItem>

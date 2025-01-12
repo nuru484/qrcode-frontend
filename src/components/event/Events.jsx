@@ -1,4 +1,4 @@
-import { useEvents } from '@/hooks/useEvent';
+import { useEvents, useDeleteEvent } from '@/hooks/useEvent';
 import {
   Card,
   CardContent,
@@ -9,12 +9,37 @@ import {
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { Pencil, Trash2, Info, UserPlus, UserMinus } from 'lucide-react';
+import {
+  Pencil,
+  Trash2,
+  Info,
+  UserPlus,
+  UserMinus,
+  ArrowLeft,
+} from 'lucide-react';
 
 const Events = () => {
-  const { events, isLoading, isError, error } = useEvents();
+  const { events, isLoading, isError, error, refetchEvents } = useEvents();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const {
+    mutate: deleteEvent,
+    isPending,
+    isError: deleteIsError,
+    error: deleteError,
+  } = useDeleteEvent();
+
+  const handleDelete = async (id) => {
+    if (window.confirm('Are you sure you want to delete this event?')) {
+      deleteEvent({ id });
+
+      refetchEvents();
+    }
+  };
+
+  if (isPending) {
+    return <div>Deleting Event...</div>;
+  }
 
   if (isLoading) {
     return (
@@ -33,22 +58,22 @@ const Events = () => {
     );
   }
 
-  if (isError) {
+  if (isError || deleteIsError) {
     return (
-      <Card className="w-11/12 max-w-2xl mx-auto mt-8 border-red-600">
-        <div className="flex items-center justify-center flex-wrap">
-          <CardContent className="p-6">
-            <p className="text-red-500 font-medium">
-              Error: {error?.message || 'An unknown error occurred'}
-            </p>
-          </CardContent>
+      <Card className="w-full max-w-3xl mx-auto mt-8">
+        <CardContent className="p-6">
+          <div className="text-red-500">
+            Error: {error?.message} {deleteError?.message}
+          </div>
           <Button
-            className="bg-emerald-600 m-4 hover:bg-emerald-500"
-            onClick={() => navigate('/')}
+            variant="outline"
+            className="mt-4"
+            onClick={() => navigate('/dashboard')}
           >
-            Home
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Home
           </Button>
-        </div>
+        </CardContent>
       </Card>
     );
   }
@@ -85,7 +110,10 @@ const Events = () => {
               {user?.data.role === 'ADMIN' && (
                 <button
                   className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                  onClick={() => console.log('Delete clicked:', event.title)}
+                  onClick={() => {
+                    handleDelete(event.id);
+                    console.log(event.id);
+                  }}
                   title="Delete Event"
                 >
                   <Trash2 className="w-5 h-5 text-red-600" />
@@ -108,27 +136,37 @@ const Events = () => {
               )}
             </div>
 
-            <div className="mt-4 flex gap-2">
-              {!event.isRegistered ? (
-                <button
-                  className="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-500 transition-colors"
-                  onClick={() => console.log('Register clicked:', event.title)}
-                >
-                  <UserPlus className="w-4 h-4" />
-                  Register
-                </button>
-              ) : (
-                <button
-                  className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-                  onClick={() =>
-                    console.log('Unregister clicked:', event.title)
-                  }
-                >
-                  <UserMinus className="w-4 h-4" />
-                  Unregister
-                </button>
-              )}
-            </div>
+            {
+              <div className="mt-4 flex gap-2">
+                {!event.isRegistered ? (
+                  <button
+                    className={`flex items-center gap-2 px-4 py-2  text-white rounded-md ${
+                      new Date(event.date) < new Date()
+                        ? 'bg-emerald-600 hover:bg-emerald-500'
+                        : ' bg-emerald-400 hover:bg-emerald-400 cursor-not-allowed'
+                    }  transition-colors `}
+                    onClick={() =>
+                      console.log('Register clicked:', event.title)
+                    }
+                  >
+                    <UserPlus className="w-4 h-4" />
+                    {new Date(event.date) < new Date()
+                      ? 'Register'
+                      : 'Event Closed'}
+                  </button>
+                ) : (
+                  <button
+                    className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                    onClick={() =>
+                      console.log('Unregister clicked:', event.title)
+                    }
+                  >
+                    <UserMinus className="w-4 h-4" />
+                    Unregister
+                  </button>
+                )}
+              </div>
+            }
           </CardContent>
         </Card>
       ))}

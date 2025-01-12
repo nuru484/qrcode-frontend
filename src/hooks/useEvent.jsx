@@ -1,5 +1,11 @@
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
-import { fetchEvent, fetchEvents, createEvent, updateEvent } from '@/api/event';
+import {
+  fetchEvent,
+  fetchEvents,
+  createEvent,
+  updateEvent,
+  deleteEvent,
+} from '@/api/event';
 
 export const useEvent = (eventId) => {
   const queryClient = useQueryClient();
@@ -60,6 +66,14 @@ export const useCreateEvent = () => {
 export const useUpdateEvent = () => {
   const mutation = useMutation({
     mutationFn: ({ id, data }) => updateEvent(id, data),
+  });
+
+  return mutation;
+};
+
+export const useDeleteEvent = () => {
+  const mutation = useMutation({
+    mutationFn: ({ id }) => deleteEvent(id),
   });
 
   return mutation;

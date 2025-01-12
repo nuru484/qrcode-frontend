@@ -1,5 +1,4 @@
-import React from 'react';
-import { useEvent } from '@/hooks/useEvent';
+import { useEvent, useEvents, useDeleteEvent } from '@/hooks/useEvent';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -13,11 +12,20 @@ import {
   Trash,
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 
 const Event = () => {
   const { id } = useParams();
   const { event, isLoading, isError, error } = useEvent(id);
   const navigate = useNavigate();
+  const { refetchEvents } = useEvents();
+  const { user } = useAuth();
+  const {
+    mutate: deleteEvent,
+    isPending,
+    isError: deleteIsError,
+    error: deleteError,
+  } = useDeleteEvent();
 
   if (isLoading) {
     return (
@@ -33,11 +41,13 @@ const Event = () => {
     );
   }
 
-  if (isError) {
+  if (isError || deleteIsError) {
     return (
       <Card className="w-full max-w-3xl mx-auto mt-8">
         <CardContent className="p-6">
-          <div className="text-red-500">Error: {error.message}</div>
+          <div className="text-red-500">
+            Error: {error?.message} {deleteError?.message}
+          </div>
           <Button
             variant="outline"
             className="mt-4"
@@ -62,12 +72,21 @@ const Event = () => {
   } = event?.data || {};
 
   const isPastEvent = new Date(date) > new Date();
+  const isUserRegistered = Registration?.some(
+    (reg) => reg.userId === user?.data.id
+  );
 
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this event?')) {
-      navigate('/dashboard');
+      deleteEvent({ id });
+
+      refetchEvents();
     }
   };
+
+  if (isPending) {
+    return <div>Deleting Event...</div>;
+  }
 
   const handleUpdate = () => {
     navigate(`/dashboard/update-event/${id}`);
@@ -75,7 +94,7 @@ const Event = () => {
 
   return (
     <Card className="w-full max-w-3xl mx-auto">
-      <CardHeader className="flex flex-col md:flex-row md:justify-between md:items-center">
+      <CardHeader className="flex flex-col md:flex-row md:justify-between md:items-center p-3">
         <Button
           variant="ghost"
           className="self-start p-0 md:px-4 md:py-2 md:self-auto mb-2 md:mb-0"
@@ -85,14 +104,18 @@ const Event = () => {
           Back
         </Button>
         <div className="flex gap-2 justify-between">
-          <Button variant="outline" onClick={handleUpdate}>
-            <Pencil className="w-4 h-4 " />
-            Edit
-          </Button>
-          <Button variant="destructive" onClick={handleDelete}>
-            <Trash className="w-4 h-4 " />
-            Delete
-          </Button>
+          {user?.data.role === 'ADMIN' && (
+            <Button variant="outline" onClick={handleUpdate}>
+              <Pencil className="w-4 h-4 " />
+              Edit
+            </Button>
+          )}
+          {user?.data.role === 'ADMIN' && (
+            <Button variant="destructive" onClick={handleDelete}>
+              <Trash className="w-4 h-4 " />
+              Delete
+            </Button>
+          )}
         </div>
       </CardHeader>
 
@@ -130,6 +153,21 @@ const Event = () => {
               Registrations ({Registration?.length || 0})
             </div>
           </div>
+
+          {!isPastEvent && !isUserRegistered && (
+            <Button
+              className="w-full md:w-auto bg-emerald-600 hover:bg-emerald-500"
+              onClick={() => navigate(`/dashboard/register/${id}`)}
+            >
+              Register for Event
+            </Button>
+          )}
+
+          {isPastEvent && (
+            <Button className="w-full md:w-auto bg-emerald-400 hover:bg-emerald-400 cursor-not-allowed">
+              Event Closed
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

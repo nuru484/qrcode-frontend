@@ -15,3 +15,7 @@ export const createEvent = async (credentials) => {
 export const updateEvent = async (id, credentials) => {
   return await api.put(`/event/${id}`, credentials);
 };
+
+export const deleteEvent = async (id) => {
+  return await api.delete(`/event/${id}`);
+};
