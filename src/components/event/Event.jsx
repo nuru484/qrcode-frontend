@@ -115,17 +115,23 @@ const Event = () => {
   const handleEventRegistration = async () => {
     if (!isUserRegistered) {
       const data = { userId: user?.data.id, eventId: event?.data.id };
-      registerForEvent(data);
-
-      refetchEvent({ eventId: event?.data.id });
-      refetchEvents();
+      registerForEvent(data, {
+        onSuccess: () => {
+          refetchEvent();
+          refetchEvents();
+        },
+      });
     } else {
       const data = { userId: user?.data.id, eventId: event?.data.id };
-
-      unRegisterForEvent({ data });
-
-      refetchEvent({ eventId: event?.data.id });
-      refetchEvents();
+      unRegisterForEvent(
+        { data },
+        {
+          onSuccess: () => {
+            refetchEvent();
+            refetchEvents();
+          },
+        }
+      );
     }
   };
 
