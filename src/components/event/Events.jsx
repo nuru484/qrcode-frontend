@@ -1,4 +1,6 @@
 import { useEvents, useDeleteEvent } from '@/hooks/useEvent';
+import { useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -17,17 +19,41 @@ import {
   UserMinus,
   ArrowLeft,
 } from 'lucide-react';
+import {
+  useRegisterForEvent,
+  useUnRegisterForEvent,
+} from '@/hooks/useEventRegistration';
 
 const Events = () => {
   const { events, isLoading, isError, error, refetchEvents } = useEvents();
+
   const navigate = useNavigate();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
+
   const {
     mutate: deleteEvent,
-    isPending,
+    isPending: isDeletePending,
     isError: deleteIsError,
     error: deleteError,
   } = useDeleteEvent();
+
+  const {
+    mutate: unRegisterForEvent,
+    isPending: pendingUnRegistration,
+    isError: unRegistrationIsError,
+    error: unRegistrationError,
+  } = useUnRegisterForEvent();
+
+  const {
+    mutate: registerForEvent,
+    isPending: pendingRegistration,
+    isError: registrationIsError,
+    error: registrationError,
+  } = useRegisterForEvent();
+
+  // State to track registration loading for each event
+  const [pendingRegistrations, setPendingRegistrations] = useState({});
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this event?')) {
@@ -44,7 +70,54 @@ const Events = () => {
     }
   };
 
-  if (isPending) {
+  const handleRegistration = async (eventId) => {
+    const data = { userId: user?.data.id, eventId };
+
+    // Set the loading state for the specific event
+    setPendingRegistrations((prev) => ({
+      ...prev,
+      [eventId]: true,
+    }));
+
+    registerForEvent(data, {
+      onSuccess: () => {
+        setPendingRegistrations((prev) => ({
+          ...prev,
+          [eventId]: false,
+        }));
+
+        refetchEvents();
+        queryClient.invalidateQueries(['event', eventId]);
+      },
+    });
+  };
+
+  const handleUnRegistration = async (eventId) => {
+    const data = { userId: user?.data.id, eventId };
+
+    // Set the loading state for the specific event
+    setPendingRegistrations((prev) => ({
+      ...prev,
+      [eventId]: true,
+    }));
+
+    unRegisterForEvent(
+      { data },
+      {
+        onSuccess: () => {
+          setPendingRegistrations((prev) => ({
+            ...prev,
+            [eventId]: false,
+          }));
+
+          refetchEvents();
+          queryClient.invalidateQueries(['event', eventId]);
+        },
+      }
+    );
+  };
+
+  if (isDeletePending) {
     return <div>Deleting Event...</div>;
   }
 
@@ -65,12 +138,19 @@ const Events = () => {
     );
   }
 
-  if (isError || deleteIsError) {
+  if (
+    isError ||
+    deleteIsError ||
+    registrationIsError ||
+    unRegistrationIsError
+  ) {
     return (
       <Card className="w-full max-w-3xl mx-auto mt-8">
         <CardContent className="p-6">
           <div className="text-red-500">
             Error: {error?.message} {deleteError?.message}
+            {registrationError?.message}
+            {unRegistrationError?.message}
           </div>
           <Button
             variant="outline"
@@ -105,9 +185,9 @@ const Events = () => {
               {user?.data.role === 'ADMIN' && (
                 <button
                   className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                  onClick={() =>
-                    navigate(`/dashboard/update-event/${event.id}`)
-                  }
+                  onClick={() => {
+                    navigate(`/dashboard/update-event/${event.id}`);
+                  }}
                   title="Edit Event"
                 >
                   <Pencil className="w-5 h-5 text-gray-600" />
@@ -117,10 +197,7 @@ const Events = () => {
               {user?.data.role === 'ADMIN' && (
                 <button
                   className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                  onClick={() => {
-                    handleDelete(event.id);
-                    console.log(event.id);
-                  }}
+                  onClick={() => handleDelete(event.id)}
                   title="Delete Event"
                 >
                   <Trash2 className="w-5 h-5 text-red-600" />
@@ -143,39 +220,42 @@ const Events = () => {
               )}
             </div>
 
-            {
-              <div className="mt-4 flex gap-2">
-                {!event.isRegistered ? (
-                  <button
-                    className={`flex items-center gap-2 px-4 py-2  text-white rounded-md ${
-                      new Date(event.date) > new Date()
-                        ? 'bg-emerald-600 hover:bg-emerald-500'
-                        : ' bg-emerald-400 hover:bg-emerald-400 cursor-not-allowed'
-                    }  transition-colors `}
-                    onClick={() =>
-                      console.log('Register clicked:', event.title)
-                    }
-                  >
-                    <UserPlus className="w-4 h-4" />
-                    {new Date(event.date) > new Date()
-                      ? 'Register'
-                      : 'Event Closed'}
-                  </button>
-                ) : (
-                  <button
-                    className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
-                    onClick={() =>
-                      console.log('Unregister clicked:', event.title)
-                    }
-                  >
+            <div className="mt-4 flex gap-2">
+              <button
+                className={`flex items-center gap-2 px-4 py-2 text-white rounded-md transition-colors ${
+                  new Date(event.date) > new Date()
+                    ? event.isRegistered
+                      ? 'bg-red-600 hover:bg-red-700'
+                      : 'bg-emerald-600 hover:bg-emerald-500'
+                    : 'bg-emerald-400 hover:bg-emerald-400 cursor-not-allowed'
+                }`}
+                onClick={() =>
+                  event.Registration.some((reg) => reg.userId === user?.data.id)
+                    ? handleUnRegistration(event.id)
+                    : handleRegistration(event.id)
+                }
+                disabled={new Date(event.date) <= new Date()}
+              >
+                {pendingRegistrations[event.id] ? (
+                  <>
                     <UserMinus className="w-4 h-4" />
-                    {new Date(event.date) > new Date()
-                      ? 'Unregister'
-                      : 'Event Closed'}
-                  </button>
+                    Unregistering...
+                  </>
+                ) : event.Registration.some(
+                    (reg) => reg.userId === user?.data.id
+                  ) ? (
+                  <>
+                    <UserMinus className="w-4 h-4" />
+                    Unregister
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="w-4 h-4" />
+                    Register for Event
+                  </>
                 )}
-              </div>
-            }
+              </button>
+            </div>
           </CardContent>
         </Card>
       ))}

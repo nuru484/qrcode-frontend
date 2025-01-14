@@ -31,8 +31,14 @@ export const useCheckEventRegistrationStatus = (credentials) => {
 };
 
 export const useRegisterForEvent = () => {
+  const queryClient = useQueryClient();
+
   const mutation = useMutation({
     mutationFn: registerForEvent,
+    onSuccess: () => {
+      queryClient.invalidateQueries(['event']);
+      queryClient.invalidateQueries(['events']);
+    },
     onError: (error) => {
       console.error('Event registration failed:', error);
     },
@@ -42,8 +48,14 @@ export const useRegisterForEvent = () => {
 };
 
 export const useUnRegisterForEvent = () => {
+  const queryClient = useQueryClient();
+
   const mutation = useMutation({
     mutationFn: unRegisterForEvent,
+    onSuccess: () => {
+      queryClient.invalidateQueries(['event']);
+      queryClient.invalidateQueries(['events']);
+    },
     onError: (error) => {
       console.error('Event unregistration failed:', error);
     },

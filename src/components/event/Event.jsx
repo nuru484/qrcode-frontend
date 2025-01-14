@@ -22,8 +22,8 @@ import {
 const Event = () => {
   const { id } = useParams();
   const { event, isLoading, isError, error, refetchEvent } = useEvent(id);
+  const { refetchEvents, events } = useEvents();
   const navigate = useNavigate();
-  const { refetchEvents } = useEvents();
   const { user } = useAuth();
   const {
     mutate: deleteEvent,
@@ -46,7 +46,7 @@ const Event = () => {
     error: registrationError,
   } = useRegisterForEvent();
 
-  useEffect(() => {}, [event]);
+  useEffect(() => {}, [event, events]);
 
   if (isLoading) {
     return (
