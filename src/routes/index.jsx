@@ -47,7 +47,7 @@ const Routes = () => {
   const publicRoutes = [
     {
       path: '/',
-      element: <CreateEventPage />,
+      element: <LoginPage />,
       errorElement: <ErrorPage />,
     },
 

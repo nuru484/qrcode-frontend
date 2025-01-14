@@ -6,6 +6,7 @@ import {
   ChevronUp,
   ChevronDown,
   User2,
+  Home,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -36,6 +37,10 @@ import { useAuth } from '@/hooks/useAuth';
 
 const getMenuItems = (isAdmin) => [
   {
+    title: 'Dashboard',
+    icon: Home,
+  },
+  {
     title: 'Event',
     icon: CalendarCheck2,
     subItems: [
@@ -63,12 +68,6 @@ export function AppSidebar() {
   const { user } = useAuth();
   const isAdmin = user?.data?.role === 'ADMIN';
   const items = React.useMemo(() => getMenuItems(isAdmin), [isAdmin]);
-
-  // Filter out any menu items that have no sub-items
-  const filteredItems = React.useMemo(
-    () => items.filter((item) => item.subItems.length > 0),
-    [items]
-  );
 
   return (
     <Sidebar className="border-r">
@@ -105,7 +104,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {filteredItems.map((item, index) => (
+              {items.map((item, index) => (
                 <Collapsible
                   key={item.title}
                   open={activeItem === index}
@@ -122,10 +121,12 @@ export function AppSidebar() {
                       >
                         <item.icon className="mr-2 h-4 w-4" />
                         <span>{item.title}</span>
-                        {activeItem === index ? (
+                        {activeItem === index && item.subItems ? (
                           <ChevronUp className="ml-auto h-4 w-4" />
                         ) : (
-                          <ChevronDown className="ml-auto h-4 w-4" />
+                          item.subItems && (
+                            <ChevronDown className="ml-auto h-4 w-4" />
+                          )
                         )}
                       </SidebarMenuButton>
                     </CollapsibleTrigger>
@@ -134,7 +135,7 @@ export function AppSidebar() {
                       role="region"
                     >
                       <SidebarMenuSub>
-                        {item.subItems.map((subItem) => (
+                        {item.subItems?.map((subItem) => (
                           <SidebarMenuSubItem key={subItem.title}>
                             <NavLink
                               to={`/dashboard/${subItem.url}`}

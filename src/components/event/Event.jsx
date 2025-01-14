@@ -1,4 +1,5 @@
 import { useEvent, useEvents, useDeleteEvent } from '@/hooks/useEvent';
+import { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -13,10 +14,14 @@ import {
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import {
+  useRegisterForEvent,
+  useUnRegisterForEvent,
+} from '@/hooks/useEventRegistration';
 
 const Event = () => {
   const { id } = useParams();
-  const { event, isLoading, isError, error } = useEvent(id);
+  const { event, isLoading, isError, error, refetchEvent } = useEvent(id);
   const navigate = useNavigate();
   const { refetchEvents } = useEvents();
   const { user } = useAuth();
@@ -26,6 +31,22 @@ const Event = () => {
     isError: deleteIsError,
     error: deleteError,
   } = useDeleteEvent();
+
+  const {
+    mutate: unRegisterForEvent,
+    isPending: pendingUnRegistration,
+    isError: unRegistrationIsError,
+    error: unRegistrationError,
+  } = useUnRegisterForEvent();
+
+  const {
+    mutate: registerForEvent,
+    isPending: pendingRegistration,
+    isError: registrationIsError,
+    error: registrationError,
+  } = useRegisterForEvent();
+
+  useEffect(() => {}, [event]);
 
   if (isLoading) {
     return (
@@ -41,12 +62,19 @@ const Event = () => {
     );
   }
 
-  if (isError || deleteIsError) {
+  if (
+    isError ||
+    deleteIsError ||
+    registrationIsError ||
+    unRegistrationIsError
+  ) {
     return (
       <Card className="w-full max-w-3xl mx-auto mt-8">
         <CardContent className="p-6">
           <div className="text-red-500">
             Error: {error?.message} {deleteError?.message}
+            {registrationError?.message}
+            {unRegistrationError?.message}
           </div>
           <Button
             variant="outline"
@@ -71,7 +99,7 @@ const Event = () => {
     Registration,
   } = event?.data || {};
 
-  const isPastEvent = new Date(date) > new Date();
+  const isPastEvent = new Date(date) < new Date();
   const isUserRegistered = Registration?.some(
     (reg) => reg.userId === user?.data.id
   );
@@ -84,6 +112,23 @@ const Event = () => {
     }
   };
 
+  const handleEventRegistration = async () => {
+    if (!isUserRegistered) {
+      const data = { userId: user?.data.id, eventId: event?.data.id };
+      registerForEvent(data);
+
+      refetchEvent({ eventId: event?.data.id });
+      refetchEvents();
+    } else {
+      const data = { userId: user?.data.id, eventId: event?.data.id };
+
+      unRegisterForEvent({ data });
+
+      refetchEvent({ eventId: event?.data.id });
+      refetchEvents();
+    }
+  };
+
   if (isPending) {
     return <div>Deleting Event...</div>;
   }
@@ -91,6 +136,14 @@ const Event = () => {
   const handleUpdate = () => {
     navigate(`/dashboard/update-event/${id}`);
   };
+
+  function getRegisterButtonText() {
+    if (!isUserRegistered) {
+      return pendingRegistration ? 'Registering...' : 'Register for Event';
+    } else if (isUserRegistered) {
+      return pendingUnRegistration ? 'Unregistring...' : 'Unregister for Event';
+    }
+  }
 
   return (
     <Card className="w-full max-w-3xl mx-auto">
@@ -154,12 +207,12 @@ const Event = () => {
             </div>
           </div>
 
-          {!isPastEvent && !isUserRegistered && (
+          {!isPastEvent && (
             <Button
               className="w-full md:w-auto bg-emerald-600 hover:bg-emerald-500"
-              onClick={() => navigate(`/dashboard/register/${id}`)}
+              onClick={handleEventRegistration}
             >
-              Register for Event
+              {getRegisterButtonText()}
             </Button>
           )}
 

@@ -31,7 +31,14 @@ const Events = () => {
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this event?')) {
-      deleteEvent({ id });
+      deleteEvent(
+        { id },
+        {
+          onSuccess: () => {
+            navigate('/dashboard');
+          },
+        }
+      );
 
       refetchEvents();
     }
@@ -141,7 +148,7 @@ const Events = () => {
                 {!event.isRegistered ? (
                   <button
                     className={`flex items-center gap-2 px-4 py-2  text-white rounded-md ${
-                      new Date(event.date) < new Date()
+                      new Date(event.date) > new Date()
                         ? 'bg-emerald-600 hover:bg-emerald-500'
                         : ' bg-emerald-400 hover:bg-emerald-400 cursor-not-allowed'
                     }  transition-colors `}
@@ -150,7 +157,7 @@ const Events = () => {
                     }
                   >
                     <UserPlus className="w-4 h-4" />
-                    {new Date(event.date) < new Date()
+                    {new Date(event.date) > new Date()
                       ? 'Register'
                       : 'Event Closed'}
                   </button>
@@ -162,7 +169,9 @@ const Events = () => {
                     }
                   >
                     <UserMinus className="w-4 h-4" />
-                    Unregister
+                    {new Date(event.date) > new Date()
+                      ? 'Unregister'
+                      : 'Event Closed'}
                   </button>
                 )}
               </div>
