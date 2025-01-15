@@ -32,7 +32,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 
 const getMenuItems = (isAdmin) => [
@@ -59,7 +59,7 @@ const getMenuItems = (isAdmin) => [
   {
     title: 'Event Registration',
     icon: NotebookPen,
-    subItems: [{ title: 'Register For Event', url: 'registerForEvent' }],
+    subItems: [{ title: 'Registered Events', url: 'registered-events' }],
   },
 ];
 
@@ -68,16 +68,17 @@ export function AppSidebar() {
   const { user } = useAuth();
   const isAdmin = user?.data?.role === 'ADMIN';
   const items = React.useMemo(() => getMenuItems(isAdmin), [isAdmin]);
+  const navigate = useNavigate();
 
   return (
-    <Sidebar className="border-r">
-      <SidebarHeader className="border-b">
+    <Sidebar className="border-r border-emerald-200 bg-emerald-50">
+      <SidebarHeader className="border-b border-emerald-200 bg-emerald-600">
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
-                  className="font-bold"
+                  className="font-bold text-white hover:bg-emerald-700 transition-colors"
                   aria-haspopup="true"
                   aria-label="QR Code Attendance Menu"
                   tabIndex={0}
@@ -85,12 +86,12 @@ export function AppSidebar() {
                   QR CODE ATTENDANCE
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem>
+              <DropdownMenuContent className="bg-white border border-emerald-200">
+                <DropdownMenuItem className="hover:bg-emerald-50">
                   <span>Go to Dashboard</span>
                 </DropdownMenuItem>
                 {isAdmin && (
-                  <DropdownMenuItem>
+                  <DropdownMenuItem className="hover:bg-emerald-50">
                     <span>Modify Settings</span>
                   </DropdownMenuItem>
                 )}
@@ -115,17 +116,30 @@ export function AppSidebar() {
                   <SidebarMenuItem>
                     <CollapsibleTrigger asChild>
                       <SidebarMenuButton
-                        className="w-full flex items-center"
-                        aria-expanded={activeItem === index ? 'true' : 'false'}
-                        aria-controls={`collapsible-${index}`}
+                        onClick={() => {
+                          if (!item.subItems) {
+                            navigate(`/dashboard`);
+                          }
+                        }}
+                        className="w-full flex items-center hover:bg-emerald-100 transition-colors"
+                        aria-expanded={
+                          item.subItems
+                            ? activeItem === index
+                              ? 'true'
+                              : 'false'
+                            : undefined
+                        }
+                        aria-controls={
+                          item.subItems ? `collapsible-${index}` : undefined
+                        }
                       >
-                        <item.icon className="mr-2 h-4 w-4" />
-                        <span>{item.title}</span>
+                        <item.icon className="mr-2 h-4 w-4 text-emerald-600" />
+                        <span className="text-emerald-900">{item.title}</span>
                         {activeItem === index && item.subItems ? (
-                          <ChevronUp className="ml-auto h-4 w-4" />
+                          <ChevronUp className="ml-auto h-4 w-4 text-emerald-600" />
                         ) : (
                           item.subItems && (
-                            <ChevronDown className="ml-auto h-4 w-4" />
+                            <ChevronDown className="ml-auto h-4 w-4 text-emerald-600" />
                           )
                         )}
                       </SidebarMenuButton>
@@ -133,16 +147,20 @@ export function AppSidebar() {
                     <CollapsibleContent
                       id={`collapsible-${index}`}
                       role="region"
+                      className="bg-emerald-50"
                     >
                       <SidebarMenuSub>
                         {item.subItems?.map((subItem) => (
-                          <SidebarMenuSubItem key={subItem.title}>
+                          <SidebarMenuSubItem
+                            key={subItem.title}
+                            className="hover:bg-emerald-100"
+                          >
                             <NavLink
                               to={`/dashboard/${subItem.url}`}
                               className={({ isActive }) =>
                                 isActive
-                                  ? 'text-blue-500 font-bold'
-                                  : 'text-gray-500'
+                                  ? 'text-emerald-600 font-bold'
+                                  : 'text-emerald-700 hover:text-emerald-900'
                               }
                             >
                               {subItem.title}
@@ -159,13 +177,13 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t">
+      <SidebarFooter className="border-t border-emerald-200 bg-emerald-600">
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
-                  className="w-full"
+                  className="w-full text-white hover:bg-emerald-700 transition-colors"
                   aria-haspopup="true"
                   aria-label="User Settings"
                   tabIndex={0}
@@ -177,17 +195,17 @@ export function AppSidebar() {
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 side="top"
-                className="w-[--radix-popper-anchor-width]"
+                className="w-[--radix-popper-anchor-width] bg-white border border-emerald-200"
               >
-                <DropdownMenuItem>
+                <DropdownMenuItem className="hover:bg-emerald-50">
                   <span>Account</span>
                 </DropdownMenuItem>
                 {isAdmin && (
-                  <DropdownMenuItem>
+                  <DropdownMenuItem className="hover:bg-emerald-50">
                     <span>Billing</span>
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem className="text-red-500">
+                <DropdownMenuItem className="text-red-500 hover:bg-red-50">
                   <span>Sign out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
