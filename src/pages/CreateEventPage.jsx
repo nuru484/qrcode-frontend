@@ -29,7 +29,7 @@ const CreateEventPage = () => {
   };
 
   return (
-    <div className="container mx-auto min-h-screen">
+    <div className="container mx-auto min-h-screen ">
       <div>
         <EventForm
           onSubmit={onSubmit}

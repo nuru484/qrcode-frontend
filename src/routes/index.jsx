@@ -8,6 +8,7 @@ import Events from '@/components/event/Events';
 import Event from '@/components/event/Event';
 import CreateEventPage from '@/pages/CreateEventPage';
 import UpdateEventPage from '@/pages/UpdateEventPage';
+import UserEventRegistrations from '@/components/eventRegistration/UserEventRegistrations';
 
 const Routes = () => {
   // Routes accessible only to authenticated users
@@ -36,6 +37,10 @@ const Routes = () => {
             {
               path: '/dashboard/event/:id',
               element: <Event />,
+            },
+            {
+              path: '/dashboard/registered-events',
+              element: <UserEventRegistrations />,
             },
           ],
         },

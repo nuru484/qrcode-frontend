@@ -239,7 +239,8 @@ const Events = () => {
         </DialogContent>
       </Dialog>
 
-      <div className="space-y-4 w-full max-w-3xl mx-auto">
+      <div className="space-y-4 w-full max-w-3xl mx-auto mt-10">
+        <h1 className="text-3xl mt-8 font-bold">Events Available</h1>
         {events?.data.map((event) => (
           <Card
             key={event.id}
@@ -283,15 +284,6 @@ const Events = () => {
               <CardDescription className="text-gray-600 line-clamp-2">
                 {event.description}
               </CardDescription>
-
-              <div className="mt-4 flex items-center gap-4 text-sm text-gray-500">
-                {event.date && (
-                  <span>{new Date(event.date).toLocaleDateString()}</span>
-                )}
-                {event.location && (
-                  <span className="flex items-center">• {event.location}</span>
-                )}
-              </div>
 
               <div className="mt-4 flex gap-2">
                 <button

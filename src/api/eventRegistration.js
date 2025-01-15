@@ -11,3 +11,7 @@ export const registerForEvent = async (credentials) => {
 export const unRegisterForEvent = async (credentials) => {
   return await api.delete('event/registration', credentials);
 };
+
+export const fetchUserEventRegistrations = async (userId) => {
+  return await api.get(`event/registration/user/${userId}`);
+};

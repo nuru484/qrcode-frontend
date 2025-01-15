@@ -4,6 +4,7 @@ import {
   checkEventRegistrationStatus,
   registerForEvent,
   unRegisterForEvent,
+  fetchUserEventRegistrations,
 } from '@/api/eventRegistration';
 import RegistrationContext from '@/context/EventRegistrationContext';
 
@@ -56,4 +57,35 @@ export const useUnRegisterForEvent = () => {
   });
 
   return mutation;
+};
+
+export const useUserEventRegistrations = (userId) => {
+  const queryClient = useQueryClient();
+
+  const {
+    data: userEventRegistrations,
+    error,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ['userEventRegistrations', userId],
+    queryFn: () => fetchUserEventRegistrations(userId),
+    staleTime: 1000 * 60 * 5,
+    cacheTime: 1000 * 60 * 30,
+    retry: 2,
+    refetchOnWindowFocus: false,
+    // refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
+
+  const refetchUserEventRegistrations = () =>
+    queryClient.invalidateQueries(['userEventRegistrations', userId]);
+
+  return {
+    userEventRegistrations,
+    isLoading,
+    isError,
+    error,
+    refetchUserEventRegistrations,
+  };
 };

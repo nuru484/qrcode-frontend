@@ -20,7 +20,7 @@ export const useAuth = () => {
     refetchOnReconnect: false,
   });
 
-  const refetchUser = () => queryClient.invalidateQueries(['user']); // Invalidate to trigger a refetch
+  const refetchUser = () => queryClient.invalidateQueries(['user']);
 
   return { user, isLoading, isError, error, refetchUser };
 };

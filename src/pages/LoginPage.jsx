@@ -68,7 +68,7 @@ const LoginPage = () => {
         {isError && (
           <Alert className="w-11/12 max-w-lg border-red-600 mt-8 fixed top-4">
             <div className="flex items-center gap-4">
-              <CircleAlert color="#ff0000" />{' '}
+              <CircleAlert color="#ff0000" />
               <AlertDescription className="text-red-600">
                 {error?.message || 'An unexpected error occurred.'}
               </AlertDescription>
