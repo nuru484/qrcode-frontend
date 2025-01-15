@@ -33,7 +33,7 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth, useLogout } from '@/hooks/useAuth';
 
 const getMenuItems = (isAdmin) => [
   {
@@ -69,6 +69,7 @@ export function AppSidebar() {
   const isAdmin = user?.data?.role === 'ADMIN';
   const items = React.useMemo(() => getMenuItems(isAdmin), [isAdmin]);
   const navigate = useNavigate();
+  const { mutate: logout, isPending, isError, error } = useLogout();
 
   return (
     <Sidebar className="border-r border-emerald-200 bg-emerald-50">
@@ -153,7 +154,7 @@ export function AppSidebar() {
                         {item.subItems?.map((subItem) => (
                           <SidebarMenuSubItem
                             key={subItem.title}
-                            className="hover:bg-emerald-100"
+                            className="hover:bg-emerald-100 my-1 py-1 border-b border-gray-200"
                           >
                             <NavLink
                               to={`/dashboard/${subItem.url}`}
@@ -189,7 +190,12 @@ export function AppSidebar() {
                   tabIndex={0}
                 >
                   <User2 className="mr-2 h-4 w-4" />
-                  <span>{user?.data?.username || 'Username'}</span>
+                  <span>
+                    {isPending
+                      ? 'Signing Out...'
+                      : user?.data?.username || 'Username'}
+                  </span>
+
                   <ChevronUp className="ml-auto h-4 w-4" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
@@ -205,7 +211,12 @@ export function AppSidebar() {
                     <span>Billing</span>
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem className="text-red-500 hover:bg-red-50">
+                <DropdownMenuItem
+                  className="text-red-500 hover:bg-red-50"
+                  onClick={() => {
+                    logout();
+                  }}
+                >
                   <span>Sign out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
