@@ -1,7 +1,15 @@
 import { useEvent, useEvents, useDeleteEvent } from '@/hooks/useEvent';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import {
   Calendar,
   MapPin,
@@ -11,6 +19,7 @@ import {
   ArrowLeft,
   Pencil,
   Trash,
+  CheckCircle,
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -18,6 +27,7 @@ import {
   useRegisterForEvent,
   useUnRegisterForEvent,
 } from '@/hooks/useEventRegistration';
+import { useEventRegistrationContext } from '@/hooks/useEventRegistration';
 
 const Event = () => {
   const { id } = useParams();
@@ -25,6 +35,7 @@ const Event = () => {
   const { refetchEvents, events } = useEvents();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [showUnregisterAlert, setShowUnregisterAlert] = useState(false);
   const {
     mutate: deleteEvent,
     isPending,
@@ -46,7 +57,26 @@ const Event = () => {
     error: registrationError,
   } = useRegisterForEvent();
 
-  useEffect(() => {}, [event, events]);
+  const [qrCode, setQrCode] = useState(null);
+  const [showQRDialog, setShowQRDialog] = useState(false);
+
+  const { setRegistrationCodes } = useEventRegistrationContext();
+
+  useEffect(() => {
+    if (qrCode) {
+      setShowQRDialog(true);
+    }
+  }, [qrCode]);
+
+  useEffect(() => {
+    let timer;
+    if (showUnregisterAlert) {
+      timer = setTimeout(() => {
+        setShowUnregisterAlert(false);
+      }, 3000);
+    }
+    return () => clearTimeout(timer);
+  }, [showUnregisterAlert]);
 
   if (isLoading) {
     return (
@@ -107,7 +137,6 @@ const Event = () => {
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this event?')) {
       deleteEvent({ id });
-
       refetchEvents();
     }
   };
@@ -116,7 +145,15 @@ const Event = () => {
     if (!isUserRegistered) {
       const data = { userId: user?.data.id, eventId: event?.data.id };
       registerForEvent(data, {
-        onSuccess: () => {
+        onSuccess: (response) => {
+          setRegistrationCodes((prev) => {
+            const updatedCodes = [
+              ...(prev || []),
+              { data: response.data, eventId: response.eventId },
+            ];
+            setQrCode(response.data);
+            return updatedCodes;
+          });
           refetchEvent();
           refetchEvents();
         },
@@ -127,6 +164,7 @@ const Event = () => {
         { data },
         {
           onSuccess: () => {
+            setShowUnregisterAlert(true);
             refetchEvent();
             refetchEvents();
           },
@@ -139,10 +177,6 @@ const Event = () => {
     return <div>Deleting Event...</div>;
   }
 
-  const handleUpdate = () => {
-    navigate(`/dashboard/update-event/${id}`);
-  };
-
   function getRegisterButtonText() {
     if (!isUserRegistered) {
       return pendingRegistration ? 'Registering...' : 'Register for Event';
@@ -152,84 +186,133 @@ const Event = () => {
   }
 
   return (
-    <Card className="w-full max-w-3xl mx-auto">
-      <CardHeader className="flex flex-col md:flex-row md:justify-between md:items-center p-3">
-        <Button
-          variant="ghost"
-          className="self-start p-0 md:px-4 md:py-2 md:self-auto mb-2 md:mb-0"
-          onClick={() => navigate(`/dashboard/events`)}
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back
-        </Button>
-        <div className="flex gap-2 justify-between">
-          {user?.data.role === 'ADMIN' && (
-            <Button variant="outline" onClick={handleUpdate}>
-              <Pencil className="w-4 h-4 " />
-              Edit
+    <>
+      {showUnregisterAlert && (
+        <Alert className="w-auto max-w-lg fixed top-4 left-1/2  bg-emerald-50 border-emerald-200 text-emerald-800 animate-in fade-in slide-in-from-top-2">
+          <CheckCircle className="h-4 w-4 text-emerald-600" />
+          <AlertDescription className="ml-2">
+            Successfully unregistered
+          </AlertDescription>
+        </Alert>
+      )}
+
+      <Dialog open={showQRDialog} onOpenChange={setShowQRDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Registration Successful</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center justify-center space-y-4 p-6">
+            <div className="border-4 border-gray-200 rounded-lg p-2">
+              <img
+                src={qrCode}
+                alt="QR Code"
+                className="w-64 h-64 object-contain"
+              />
+            </div>
+            <p className="text-sm text-gray-500 text-center">
+              You can find this code in your registrations
+            </p>
+          </div>
+          <DialogFooter className="sm:justify-center">
+            <Button
+              type="button"
+              variant="default"
+              onClick={() => setShowQRDialog(false)}
+            >
+              Close
             </Button>
-          )}
-          {user?.data.role === 'ADMIN' && (
-            <Button variant="destructive" onClick={handleDelete}>
-              <Trash className="w-4 h-4 " />
-              Delete
-            </Button>
-          )}
-        </div>
-      </CardHeader>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
-      <CardContent className="p-6 space-y-6">
-        <div>
-          <CardTitle className="text-2xl mb-2">{title}</CardTitle>
-          <div className="flex items-center text-gray-500 mb-2">
-            <Tag className="w-4 h-4 mr-2" />
-            {category}
-          </div>
-        </div>
-
-        <p className="text-gray-700">{description}</p>
-
-        <div className="flex flex-col space-y-4">
-          <div className="flex items-center text-gray-600">
-            <Calendar className="w-4 h-4 mr-2" />
-            {new Date(date).toLocaleString()}
-          </div>
-
-          <div className="flex items-center text-gray-600">
-            <MapPin className="w-4 h-4 mr-2" />
-            {location}
-          </div>
-
-          <div className="flex gap-4">
-            {isPastEvent && (
-              <div className="flex items-center">
-                <Users className="w-4 h-4 mr-2" />
-                Attendance ({Attendance?.length || 0})
-              </div>
+      <Card className="w-full max-w-3xl mx-auto">
+        <CardHeader className="flex flex-col md:flex-row md:justify-between md:items-center p-3">
+          <Button
+            variant="ghost"
+            className="self-start p-0 md:px-4 md:py-2 md:self-auto mb-2 md:mb-0"
+            onClick={() => navigate(`/dashboard/events`)}
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back
+          </Button>
+          <div className="flex gap-2 justify-between">
+            {user?.data.role === 'ADMIN' && (
+              <Button
+                variant="outline"
+                onClick={() => {
+                  navigate(`/dashboard/update-event/${id}`);
+                }}
+              >
+                <Pencil className="w-4 h-4 " />
+                Edit
+              </Button>
             )}
-            <div className="flex items-center">
-              <ClipboardList className="w-4 h-4 mr-2" />
-              Registrations ({Registration?.length || 0})
+            {user?.data.role === 'ADMIN' && (
+              <Button variant="destructive" onClick={handleDelete}>
+                <Trash className="w-4 h-4 " />
+                Delete
+              </Button>
+            )}
+          </div>
+        </CardHeader>
+
+        <CardContent className="p-6 space-y-6">
+          <div>
+            <CardTitle className="text-2xl mb-2">{title}</CardTitle>
+            <div className="flex items-center text-gray-500 mb-2">
+              <Tag className="w-4 h-4 mr-2" />
+              {category}
             </div>
           </div>
 
-          {!isPastEvent && (
-            <Button
-              className="w-full md:w-auto bg-emerald-600 hover:bg-emerald-500"
-              onClick={handleEventRegistration}
-            >
-              {getRegisterButtonText()}
-            </Button>
-          )}
+          <p className="text-gray-700">{description}</p>
 
-          {isPastEvent && (
-            <Button className="w-full md:w-auto bg-emerald-400 hover:bg-emerald-400 cursor-not-allowed">
-              Event Closed
-            </Button>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+          <div className="flex flex-col space-y-4">
+            <div className="flex items-center text-gray-600">
+              <Calendar className="w-4 h-4 mr-2" />
+              {new Date(date).toLocaleString()}
+            </div>
+
+            <div className="flex items-center text-gray-600">
+              <MapPin className="w-4 h-4 mr-2" />
+              {location}
+            </div>
+
+            <div className="flex gap-4">
+              {isPastEvent && (
+                <div className="flex items-center">
+                  <Users className="w-4 h-4 mr-2" />
+                  Attendance ({Attendance?.length || 0})
+                </div>
+              )}
+              <div className="flex items-center">
+                <ClipboardList className="w-4 h-4 mr-2" />
+                Registrations ({Registration?.length || 0})
+              </div>
+            </div>
+
+            {!isPastEvent && (
+              <Button
+                className={`w-full md:w-auto ${
+                  isUserRegistered
+                    ? 'bg-red-600 hover:bg-red-500'
+                    : 'bg-emerald-600 hover:bg-emerald-500'
+                }`}
+                onClick={handleEventRegistration}
+              >
+                {getRegisterButtonText()}
+              </Button>
+            )}
+
+            {isPastEvent && (
+              <Button className="w-full md:w-auto bg-emerald-400 hover:bg-emerald-400 cursor-not-allowed">
+                Event Closed
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </>
   );
 };
 

@@ -4,7 +4,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useState } from 'react';
 
 import { Navigate } from 'react-router-dom';
-import { ClockIcon, CheckCircle, UserCheck } from 'lucide-react';
+import { ClockIcon, CheckCircle, UserCheck, CircleAlert } from 'lucide-react';
 
 const LoginPage = () => {
   const { mutate: login, isPending, isError, error } = useLogin();
@@ -66,10 +66,13 @@ const LoginPage = () => {
         </div>
 
         {isError && (
-          <Alert className="w-11/12 max-w-lg x-4 border-red-600 mt-8 fixed top-4">
-            <AlertDescription className="text-red-600">
-              {error?.message || 'An unexpected error occurred.'}
-            </AlertDescription>
+          <Alert className="w-11/12 max-w-lg border-red-600 mt-8 fixed top-4">
+            <div className="flex items-center gap-4">
+              <CircleAlert color="#ff0000" />{' '}
+              <AlertDescription className="text-red-600">
+                {error?.message || 'An unexpected error occurred.'}
+              </AlertDescription>
+            </div>
           </Alert>
         )}
       </div>

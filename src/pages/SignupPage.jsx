@@ -10,6 +10,7 @@ import {
   AlertDialogDescription,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { CircleAlert } from 'lucide-react';
 
 const SignupPage = () => {
   const { mutate: signup, isPending, isError, error } = useSignup();
@@ -36,10 +37,13 @@ const SignupPage = () => {
         </div>
 
         {isError && (
-          <Alert className="border-red-600 mt-4 fixed top-2 text-black">
-            <AlertDescription className="text-red-600">
-              {error?.message}
-            </AlertDescription>
+          <Alert className="w-11/12 max-w-lg x-4 border-red-600 mt-8 fixed top-4">
+            <div className="flex items-center gap-4">
+              <CircleAlert color="#ff0000" />{' '}
+              <AlertDescription className="text-red-600">
+                {error?.message || 'An unexpected error occurred.'}
+              </AlertDescription>
+            </div>
           </Alert>
         )}
 

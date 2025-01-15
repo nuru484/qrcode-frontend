@@ -1,9 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useContext } from 'react';
 import {
   checkEventRegistrationStatus,
   registerForEvent,
   unRegisterForEvent,
 } from '@/api/eventRegistration';
+import RegistrationContext from '@/context/EventRegistrationContext';
+
+export const useEventRegistrationContext = () =>
+  useContext(RegistrationContext);
 
 export const useCheckEventRegistrationStatus = (credentials) => {
   const queryClient = useQueryClient();
@@ -31,14 +36,9 @@ export const useCheckEventRegistrationStatus = (credentials) => {
 };
 
 export const useRegisterForEvent = () => {
-  const queryClient = useQueryClient();
-
   const mutation = useMutation({
     mutationFn: registerForEvent,
-    onSuccess: () => {
-      queryClient.invalidateQueries(['event']);
-      queryClient.invalidateQueries(['events']);
-    },
+
     onError: (error) => {
       console.error('Event registration failed:', error);
     },
@@ -48,14 +48,8 @@ export const useRegisterForEvent = () => {
 };
 
 export const useUnRegisterForEvent = () => {
-  const queryClient = useQueryClient();
-
   const mutation = useMutation({
     mutationFn: unRegisterForEvent,
-    onSuccess: () => {
-      queryClient.invalidateQueries(['event']);
-      queryClient.invalidateQueries(['events']);
-    },
     onError: (error) => {
       console.error('Event unregistration failed:', error);
     },
