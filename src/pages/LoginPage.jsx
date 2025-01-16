@@ -1,7 +1,7 @@
 import { useLogin } from '@/hooks/useAuth';
 import LoginForm from '@/components/LoginForm';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Navigate } from 'react-router-dom';
 import { ClockIcon, CheckCircle, UserCheck, CircleAlert } from 'lucide-react';
@@ -18,9 +18,11 @@ const LoginPage = () => {
     });
   };
 
-  if (isLoggedIn) {
-    return <Navigate to={`/dashboard`} replace />;
-  }
+  useEffect(() => {
+    if (isLoggedIn) {
+      return <Navigate to={`/dashboard`} replace />;
+    }
+  }, [isLoggedIn]);
 
   return (
     <div className="bg-gray-100">
