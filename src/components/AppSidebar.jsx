@@ -53,7 +53,8 @@ const getMenuItems = (isAdmin) => [
     icon: UserRoundPen,
     subItems: [
       ...(isAdmin ? [{ title: 'Scan QR Conde', url: 'scan-qr-code' }] : []),
-      { title: 'View Reports', url: 'viewReports' },
+      { title: 'View Reports', url: 'view-reports' },
+      { title: 'Attended Events', url: 'attended-events' },
     ],
   },
   {

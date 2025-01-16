@@ -10,6 +10,8 @@ import CreateEventPage from '@/pages/CreateEventPage';
 import UpdateEventPage from '@/pages/UpdateEventPage';
 import UserEventRegistrations from '@/components/eventRegistration/UserEventRegistrations';
 import QRScanner from '@/components/attendance/ScanQrCode';
+import UserAttendedEvents from '@/components/attendance/UserAttendedEvents';
+import EventAttendanceReports from '@/components/attendance/EventAttendanceReports';
 
 const Routes = () => {
   // Routes accessible only to authenticated users
@@ -46,6 +48,19 @@ const Routes = () => {
             {
               path: '/dashboard/scan-qr-code',
               element: <QRScanner />,
+            },
+
+            {
+              path: '/dashboard/attended-events',
+              element: <UserAttendedEvents />,
+            },
+            {
+              path: '/dashboard/view-reports',
+              element: <Events />,
+            },
+            {
+              path: '/dashboard/event/:eventId/attendance-report',
+              element: <EventAttendanceReports />,
             },
           ],
         },
