@@ -18,11 +18,9 @@ const LoginPage = () => {
     });
   };
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      return <Navigate to={`/dashboard`} replace />;
-    }
-  }, [isLoggedIn]);
+  if (isLoggedIn) {
+    return <Navigate to={`/dashboard`} replace />;
+  }
 
   return (
     <div className="bg-gray-100">
