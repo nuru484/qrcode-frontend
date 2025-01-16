@@ -1,7 +1,7 @@
 import { useLogin } from '@/hooks/useAuth';
 import LoginForm from '@/components/LoginForm';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { Navigate } from 'react-router-dom';
 import { ClockIcon, CheckCircle, UserCheck, CircleAlert } from 'lucide-react';
