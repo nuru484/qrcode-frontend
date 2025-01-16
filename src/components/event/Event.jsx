@@ -32,7 +32,7 @@ import { useEventRegistrationContext } from '@/hooks/useEventRegistration';
 const Event = () => {
   const { id } = useParams();
   const { event, isLoading, isError, error, refetchEvent } = useEvent(id);
-  const { refetchEvents, events } = useEvents();
+  const { refetchEvents } = useEvents();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [showUnregisterAlert, setShowUnregisterAlert] = useState(false);
@@ -66,7 +66,7 @@ const Event = () => {
     if (qrCode) {
       setShowQRDialog(true);
     }
-  }, [qrCode]);
+  }, [qrCode, event]);
 
   useEffect(() => {
     let timer;
@@ -76,7 +76,7 @@ const Event = () => {
       }, 3000);
     }
     return () => clearTimeout(timer);
-  }, [showUnregisterAlert]);
+  }, [showUnregisterAlert, event]);
 
   if (isLoading) {
     return (

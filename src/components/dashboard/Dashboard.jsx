@@ -1,7 +1,6 @@
-import { Bell, Search, QrCode, Calendar, Users, Clock } from 'lucide-react';
+import { Bell, QrCode, Calendar, Users, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Input } from '@/components/ui/input';
 
 const Dashboard = () => {
   const stats = {
@@ -49,13 +48,6 @@ const Dashboard = () => {
         </div>
 
         {/* Search Bar */}
-        <div className="relative mb-8">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-emerald-500" />
-          <Input
-            className="pl-10 w-full border-emerald-200 focus:ring-emerald-500 focus:border-emerald-500 rounded-lg shadow-sm"
-            placeholder="Search events, participants, or attendance records..."
-          />
-        </div>
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -99,7 +91,7 @@ const Dashboard = () => {
               QR Code Tools
             </CardTitle>
           </CardHeader>
-          <CardContent className="flex gap-4">
+          <CardContent className="flex flex-wrap justify-center md:justify-normal md:flex-nowrap gap-4">
             <button className="flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-sm transition-colors duration-200">
               <QrCode className="h-4 w-4" />
               Scan QR Code

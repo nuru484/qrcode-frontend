@@ -22,7 +22,7 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <Alert className="border-red-600 mt-4 fixed top-2">
+        <Alert className="border-red-600 mt-4 fixed top-2 left-1/2 -translate-x-1/2">
           <AlertTitle>Something went wrong.</AlertTitle>
           <AlertDescription className="text-red-600">
             <p> {this.state.error?.toString()}</p>

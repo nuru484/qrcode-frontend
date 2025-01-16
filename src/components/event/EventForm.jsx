@@ -148,7 +148,6 @@ const EventForm = ({ onSubmit, isLoading, defaultValues, onCancel }) => {
               >
                 <option value="">Select Category</option>
                 <option value="Sports">Sports</option>
-                <option value="Cultural">Cultural</option>
                 <option value="Academic">Academic</option>
               </select>
               {errors.category && (

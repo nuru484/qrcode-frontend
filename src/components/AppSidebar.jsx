@@ -52,7 +52,7 @@ const getMenuItems = (isAdmin) => [
     title: 'Attendance',
     icon: UserRoundPen,
     subItems: [
-      ...(isAdmin ? [{ title: 'Take Attendance', url: 'takeAttendance' }] : []),
+      ...(isAdmin ? [{ title: 'Scan QR Conde', url: 'scan-qr-code' }] : []),
       { title: 'View Reports', url: 'viewReports' },
     ],
   },
@@ -69,35 +69,21 @@ export function AppSidebar() {
   const isAdmin = user?.data?.role === 'ADMIN';
   const items = React.useMemo(() => getMenuItems(isAdmin), [isAdmin]);
   const navigate = useNavigate();
-  const { mutate: logout, isPending, isError, error } = useLogout();
+  const { mutate: logout, isPending } = useLogout();
 
   return (
     <Sidebar className="border-r border-emerald-200 bg-emerald-50">
       <SidebarHeader className="border-b border-emerald-200 bg-emerald-600">
         <SidebarMenu>
           <SidebarMenuItem>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuButton
-                  className="font-bold text-white hover:bg-emerald-700 transition-colors"
-                  aria-haspopup="true"
-                  aria-label="QR Code Attendance Menu"
-                  tabIndex={0}
-                >
-                  QR CODE ATTENDANCE
-                </SidebarMenuButton>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-white border border-emerald-200">
-                <DropdownMenuItem className="hover:bg-emerald-50">
-                  <span>Go to Dashboard</span>
-                </DropdownMenuItem>
-                {isAdmin && (
-                  <DropdownMenuItem className="hover:bg-emerald-50">
-                    <span>Modify Settings</span>
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <SidebarMenuButton
+              className="font-bold text-white hover:bg-emerald-700 hover:text-white transition-colors"
+              aria-haspopup="true"
+              aria-label="QR Code Attendance Menu"
+              tabIndex={0}
+            >
+              QR CODE ATTENDANCE
+            </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>

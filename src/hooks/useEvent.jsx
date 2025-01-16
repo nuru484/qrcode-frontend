@@ -22,7 +22,6 @@ export const useEvent = (eventId) => {
     cacheTime: 1000 * 60 * 30,
     retry: 2,
     refetchOnWindowFocus: false,
-    // refetchOnMount: false,
     refetchOnReconnect: false,
   });
 
@@ -46,7 +45,6 @@ export const useEvents = () => {
     cacheTime: 1000 * 60 * 30,
     retry: 3,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
     refetchOnReconnect: false,
   });
 

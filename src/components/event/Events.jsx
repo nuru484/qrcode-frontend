@@ -55,14 +55,12 @@ const Events = () => {
 
   const {
     mutate: unRegisterForEvent,
-    isPending: pendingUnRegistration,
     isError: unRegistrationIsError,
     error: unRegistrationError,
   } = useUnRegisterForEvent();
 
   const {
     mutate: registerForEvent,
-    isPending: pendingRegistration,
     isError: registrationIsError,
     error: registrationError,
   } = useRegisterForEvent();

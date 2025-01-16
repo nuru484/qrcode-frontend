@@ -55,7 +55,9 @@ const UserEventRegistrations = () => {
           ))}
         </div>
       ) : (
-        <p className="text-center text-gray-500">No registrations found.</p>
+        <p className="text-center text-gray-500 my-4">
+          You have not registered for any events yet.
+        </p>
       )}
 
       <Dialog open={!!selectedEvent} onOpenChange={handleCloseDialog}>

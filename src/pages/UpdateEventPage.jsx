@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useUpdateEvent } from '@/hooks/useEvent';
+import { useEvent, useUpdateEvent } from '@/hooks/useEvent';
 import EventForm from '@/components/event/EventForm';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
@@ -11,30 +11,20 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
-import { api } from '@/api';
-
 const UpdateEventPage = () => {
   const { id } = useParams();
   const { mutate: updateEvent, isPending, isError, error } = useUpdateEvent();
-  const [eventData, setEventData] = useState(null);
+  const {
+    event,
+    isLoading,
+    isError: eventIsError,
+    error: eventError,
+    refetchEvent,
+  } = useEvent(id);
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchEvent = async () => {
-      try {
-        const response = await api.get(`/event/${id}`);
-
-        const { Attendance, Registration, ...rest } = response.data;
-
-        setEventData(rest);
-      } catch (err) {
-        console.error('Failed to fetch event:', err);
-      }
-    };
-
-    fetchEvent();
-  }, [id]);
+  const { Attendance, Registration, ...eventData } = event?.data || {};
 
   const onSubmit = async (data) => {
     updateEvent(
@@ -42,6 +32,7 @@ const UpdateEventPage = () => {
       {
         onSuccess: () => {
           setSuccess(true);
+          refetchEvent();
         },
       }
     );
@@ -51,7 +42,7 @@ const UpdateEventPage = () => {
     navigate(`/dashboard/event/${id}`);
   };
 
-  if (!eventData) {
+  if (isLoading || !event.data) {
     return <div>Loading...</div>;
   }
 
@@ -68,10 +59,10 @@ const UpdateEventPage = () => {
         />
       </div>
 
-      {isError && (
+      {(isError || eventIsError) && (
         <Alert className="border-red-600 mt-4 fixed top-2 text-black">
           <AlertDescription className="text-red-600">
-            {error?.message}
+            {error?.message} {eventError?.message}
           </AlertDescription>
         </Alert>
       )}
