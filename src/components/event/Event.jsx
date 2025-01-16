@@ -305,7 +305,10 @@ const Event = () => {
             )}
 
             {isPastEvent && (
-              <Button className="w-full md:w-auto bg-emerald-400 hover:bg-emerald-400 cursor-not-allowed">
+              <Button
+                variant="destructive"
+                className="w-full md:w-auto cursor-not-allowed"
+              >
                 Event Closed
               </Button>
             )}

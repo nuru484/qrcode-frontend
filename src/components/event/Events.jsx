@@ -36,6 +36,7 @@ import {
 
 const Events = () => {
   const { events, isLoading, isError, error, refetchEvents } = useEvents();
+  console.log(events);
   const navigate = useNavigate();
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -149,6 +150,8 @@ const Events = () => {
     );
   };
 
+  const today = new Date();
+
   if (isDeletePending) {
     return <div>Deleting Event...</div>;
   }
@@ -200,7 +203,7 @@ const Events = () => {
   return (
     <>
       {showUnregisterAlert && (
-        <Alert className="w-auto max-w-lg fixed top-4 left-1/2 transform -translate-x-1/2 bg-emerald-50 border-emerald-200 text-emerald-800 animate-in fade-in slide-in-from-top-2">
+        <Alert className="w-auto max-w-lg fixed top-4 z-30 left-1/2 transform -translate-x-1/2 bg-emerald-50 border-emerald-200 text-emerald-800 animate-in fade-in slide-in-from-top-2">
           <CheckCircle className="h-4 w-4 text-emerald-600" />
           <AlertDescription className="ml-2">
             Successfully unregistered
@@ -239,97 +242,113 @@ const Events = () => {
 
       <div className="space-y-4 w-full max-w-3xl mx-auto mt-10">
         <h1 className="text-3xl mt-8 font-bold">Events Available</h1>
-        {events?.data.map((event) => (
-          <Card
-            key={event.id}
-            className="transition-all duration-200 hover:shadow-md"
-          >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-xl font-bold">{event.title}</CardTitle>
-              <div className="flex items-center gap-2">
-                <button
-                  className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                  onClick={() => navigate(`/dashboard/event/${event.id}`)}
-                  title="View Details"
-                >
-                  <Info className="w-5 h-5 text-blue-600" />
-                </button>
-                {user?.data.role === 'ADMIN' && (
+        {events?.data.map((event) => {
+          const eventDate = new Date(event.date);
+          const isUpcoming = eventDate >= today;
+          const isPast = eventDate < today;
+
+          return (
+            <Card
+              key={event.id}
+              className="transition-all duration-200 hover:shadow-md"
+            >
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-xl font-bold">
+                  {event.title}
+                </CardTitle>
+                <div className="flex items-center gap-2">
                   <button
                     className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                    onClick={() => {
-                      navigate(`/dashboard/update-event/${event.id}`);
-                    }}
-                    title="Edit Event"
+                    onClick={() => navigate(`/dashboard/event/${event.id}`)}
+                    title="View Details"
                   >
-                    <Pencil className="w-5 h-5 text-gray-600" />
+                    <Info className="w-5 h-5 text-blue-600" />
                   </button>
-                )}
+                  {user?.data.role === 'ADMIN' && (
+                    <button
+                      className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                      onClick={() => {
+                        navigate(`/dashboard/update-event/${event.id}`);
+                      }}
+                      title="Edit Event"
+                    >
+                      <Pencil className="w-5 h-5 text-gray-600" />
+                    </button>
+                  )}
 
-                {user?.data.role === 'ADMIN' && (
-                  <button
-                    className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                    onClick={() => handleDelete(event.id)}
-                    title="Delete Event"
-                  >
-                    <Trash2 className="w-5 h-5 text-red-600" />
-                  </button>
-                )}
-              </div>
-            </CardHeader>
+                  {user?.data.role === 'ADMIN' && (
+                    <button
+                      className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                      onClick={() => handleDelete(event.id)}
+                      title="Delete Event"
+                    >
+                      <Trash2 className="w-5 h-5 text-red-600" />
+                    </button>
+                  )}
+                </div>
+              </CardHeader>
 
-            <CardContent>
-              <CardDescription className="text-gray-600 line-clamp-2">
-                {event.description}
-              </CardDescription>
+              <CardContent>
+                <CardDescription className="text-gray-600 line-clamp-2">
+                  {event.description}
+                </CardDescription>
 
-              <div className="mt-4 flex gap-2">
-                <button
-                  className={`flex items-center gap-2 px-4 py-2 text-white rounded-md transition-colors ${
-                    new Date(event.date) > new Date()
-                      ? event.Registration.some(
+                <div className="mt-4 flex gap-2">
+                  {isUpcoming && (
+                    <button
+                      className={`flex items-center gap-2 px-4 py-2 text-white rounded-md transition-colors ${
+                        event.Registration.some(
                           (reg) => reg.userId === user?.data.id
                         )
-                        ? 'bg-red-600 hover:bg-red-700'
-                        : 'bg-emerald-600 hover:bg-emerald-500'
-                      : 'bg-emerald-400 hover:bg-emerald-400 cursor-not-allowed'
-                  }`}
-                  onClick={() =>
-                    event.Registration.some(
-                      (reg) => reg.userId === user?.data.id
-                    )
-                      ? handleUnRegistration(event.id)
-                      : handleRegistration(event.id)
-                  }
-                  disabled={new Date(event.date) <= new Date()}
-                >
-                  {pendingRegistrations[event.id] ? (
-                    <>
-                      <UserMinus className="w-4 h-4" />
-                      {event.Registration.some(
-                        (reg) => reg.userId === user?.data.id
-                      )
-                        ? 'Unregistering...'
-                        : 'Registering...'}
-                    </>
-                  ) : event.Registration.some(
-                      (reg) => reg.userId === user?.data.id
-                    ) ? (
-                    <>
-                      <UserMinus className="w-4 h-4" />
-                      Unregister
-                    </>
-                  ) : (
-                    <>
-                      <UserPlus className="w-4 h-4" />
-                      Register for Event
-                    </>
+                          ? 'bg-red-600 hover:bg-red-700'
+                          : 'bg-emerald-600 hover:bg-emerald-500'
+                      }`}
+                      onClick={() =>
+                        event.Registration.some(
+                          (reg) => reg.userId === user?.data.id
+                        )
+                          ? handleUnRegistration(event.id)
+                          : handleRegistration(event.id)
+                      }
+                    >
+                      {pendingRegistrations[event.id] ? (
+                        <>
+                          <UserMinus className="w-4 h-4" />
+                          {event.Registration.some(
+                            (reg) => reg.userId === user?.data.id
+                          )
+                            ? 'Unregistering...'
+                            : 'Registering...'}
+                        </>
+                      ) : event.Registration.some(
+                          (reg) => reg.userId === user?.data.id
+                        ) ? (
+                        <>
+                          <UserMinus className="w-4 h-4" />
+                          Unregister
+                        </>
+                      ) : (
+                        <>
+                          <UserPlus className="w-4 h-4" />
+                          Register for Event
+                        </>
+                      )}
+                    </button>
                   )}
-                </button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+
+                  {isPast && (
+                    <Button
+                      variant="destructive"
+                      className="cursor-not-allowed"
+                    >
+                      Event Closed
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
     </>
   );
