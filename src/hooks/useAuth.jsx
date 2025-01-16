@@ -28,6 +28,9 @@ export const useAuth = () => {
 export const useLogin = () => {
   const mutation = useMutation({
     mutationFn: login,
+    onSuccess: () => {
+      console.log('login success.');
+    },
     onError: (error) => {
       console.error('Login failed:', error);
     },
