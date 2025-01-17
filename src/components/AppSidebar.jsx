@@ -104,6 +104,7 @@ export function AppSidebar() {
                   <SidebarMenuItem>
                     <CollapsibleTrigger asChild>
                       <SidebarMenuButton
+                        hasSubmenu={item.subItems ? false : true}
                         onClick={() => {
                           if (!item.subItems) {
                             navigate(`/dashboard`);
@@ -141,14 +142,16 @@ export function AppSidebar() {
                         {item.subItems?.map((subItem) => (
                           <SidebarMenuSubItem
                             key={subItem.title}
-                            className="hover:bg-emerald-100 my-1 py-1 border-b border-gray-200"
+                            className="hover:bg-emerald-100 border-b border-gray-200"
                           >
                             <NavLink
                               to={`/dashboard/${subItem.url}`}
                               className={({ isActive }) =>
-                                isActive
-                                  ? 'text-emerald-600 font-bold'
-                                  : 'text-emerald-700 hover:text-emerald-900'
+                                `${
+                                  isActive
+                                    ? 'text-emerald-600 font-bold bg-emerald-100'
+                                    : 'text-emerald-700 hover:text-emerald-900'
+                                } block w-full px-2 py-1`
                               }
                             >
                               {subItem.title}

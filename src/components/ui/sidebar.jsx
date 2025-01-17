@@ -2,7 +2,6 @@ import * as React from 'react';
 import { Slot } from '@radix-ui/react-slot';
 import { cva } from 'class-variance-authority';
 import { AlignJustify } from 'lucide-react';
-
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -476,12 +475,26 @@ const SidebarMenuButton = React.forwardRef(
       size = 'default',
       tooltip,
       className,
+      onClick,
+      hasSubmenu = false, // New prop to indicate if this button has submenu items
       ...props
     },
     ref
   ) => {
     const Comp = asChild ? Slot : 'button';
-    const { isMobile, state } = useSidebar();
+    const { isMobile, state, setOpenMobile } = useSidebar();
+
+    const handleClick = (event) => {
+      // Call the original onClick handler if it exists
+      if (onClick) {
+        onClick(event);
+      }
+
+      // Close the sidebar if we're on mobile and there's no submenu
+      if (isMobile && hasSubmenu) {
+        setOpenMobile(false);
+      }
+    };
 
     const button = (
       <Comp
@@ -489,6 +502,7 @@ const SidebarMenuButton = React.forwardRef(
         data-sidebar="menu-button"
         data-size={size}
         data-active={isActive}
+        onClick={handleClick}
         className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
         {...props}
       />
@@ -611,9 +625,23 @@ const SidebarMenuSub = React.forwardRef(({ className, ...props }, ref) => (
 ));
 SidebarMenuSub.displayName = 'SidebarMenuSub';
 
-const SidebarMenuSubItem = React.forwardRef(({ ...props }, ref) => (
-  <li ref={ref} {...props} />
-));
+const SidebarMenuSubItem = React.forwardRef(({ onClick, ...props }, ref) => {
+  const { isMobile, setOpenMobile } = useSidebar();
+
+  const handleClick = (event) => {
+    // Call the original onClick handler if it exists
+    if (onClick) {
+      onClick(event);
+    }
+
+    // Close the sidebar if we're on mobile
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
+
+  return <li ref={ref} {...props} onClick={handleClick} />;
+});
 SidebarMenuSubItem.displayName = 'SidebarMenuSubItem';
 
 const SidebarMenuSubButton = React.forwardRef(

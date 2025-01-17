@@ -34,7 +34,7 @@ const QRScanner = () => {
   const startScanning = async () => {
     try {
       setScanning(true);
-      const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+      const config = { fps: 10 };
 
       await html5QrCode.start(
         { facingMode: 'environment' },
