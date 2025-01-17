@@ -40,6 +40,7 @@ const Events = () => {
   const [qrCode, setQrCode] = useState(null);
   const [showQRDialog, setShowQRDialog] = useState(false);
   const [pendingRegistrations, setPendingRegistrations] = useState({});
+  const [pendingDeletion, setPendingDeletion] = useState({});
 
   const isReportsView = location.pathname === '/dashboard/view-reports';
 
@@ -80,11 +81,19 @@ const Events = () => {
 
   const handleDelete = async (id) => {
     if (window.confirm('Are you sure you want to delete this event?')) {
+      setPendingDeletion((prev) => ({
+        ...prev,
+        [id]: true,
+      }));
+
       deleteEvent(
         { id },
         {
           onSuccess: () => {
-            navigate('/dashboard');
+            setPendingDeletion((prev) => ({
+              ...prev,
+              [id]: false,
+            }));
           },
         }
       );
@@ -105,6 +114,7 @@ const Events = () => {
           ...prev,
           [eventId]: false,
         }));
+
         setRegistrationCodes((prev) => {
           const updatedCodes = [
             ...(prev || []),
@@ -113,6 +123,7 @@ const Events = () => {
           setQrCode(response.data);
           return updatedCodes;
         });
+
         refetchEvents();
         queryClient.invalidateQueries(['event', eventId]);
       },
@@ -145,20 +156,6 @@ const Events = () => {
   const handleViewReport = (eventId) => {
     navigate(`/dashboard/event/${eventId}/attendance-report`);
   };
-
-  const today = new Date();
-
-  if (isDeletePending) {
-    return (
-      <Card className="w-full max-w-3xl mx-auto mt-8">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-center">
-            <div className="text-gray-600">Deleting Event...</div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
 
   if (isLoading) {
     return (
@@ -200,6 +197,20 @@ const Events = () => {
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Home
           </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!events?.data?.length) {
+    return (
+      <Card className="w-full">
+        <CardContent className="p-6">
+          <p className="text-center text-gray-500">
+            {isReportsView
+              ? `There's  currently no event for report.`
+              : `There's currently no event.`}
+          </p>
         </CardContent>
       </Card>
     );
@@ -254,117 +265,125 @@ const Events = () => {
           </CardHeader>
 
           <CardContent className="space-y-4">
-            {events?.data.map((event) => {
-              const eventDate = new Date(event.date);
-              const isUpcoming = eventDate >= today;
-              const isPast = eventDate < today;
+            {events?.data?.length > 0 &&
+              events.data.map((event) => {
+                const today = new Date();
+                const eventDate = new Date(event.date);
+                const isUpcoming = eventDate >= today;
+                const isPast = eventDate < today;
 
-              return (
-                <Card
-                  key={event.id}
-                  className="transition-all duration-200 hover:shadow-md"
-                >
-                  <CardContent className="p-6">
-                    <div className="flex flex-wrap md:flex-nowrap justify-between items-start mb-2">
-                      <h3 className="text-xl font-semibold order-2 md:order-1">
-                        {event.title}
-                      </h3>
-                      <div className="flex items-center gap-2 order-1 md:order-2">
-                        {!isReportsView && (
-                          <button
-                            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                            onClick={() =>
-                              navigate(`/dashboard/event/${event.id}`)
-                            }
-                            title="View Details"
+                return (
+                  <Card
+                    key={event.id}
+                    className="transition-all duration-200 hover:shadow-md"
+                  >
+                    <CardContent className="p-6">
+                      <div className="flex flex-wrap md:flex-nowrap justify-between items-start mb-2">
+                        <h3 className="text-xl font-semibold order-2 md:order-1">
+                          {event.title}
+                        </h3>
+                        <div className="flex items-center gap-2 order-1 md:order-2">
+                          {!isReportsView && (
+                            <button
+                              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                              onClick={() =>
+                                navigate(`/dashboard/event/${event.id}`)
+                              }
+                              title="View Details"
+                            >
+                              <Info className="w-5 h-5 text-blue-600" />
+                            </button>
+                          )}
+                          {user?.data.role === 'ADMIN' && !isReportsView && (
+                            <>
+                              <button
+                                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                                onClick={() => {
+                                  navigate(
+                                    `/dashboard/update-event/${event.id}`
+                                  );
+                                }}
+                                title="Edit Event"
+                              >
+                                <Pencil className="w-5 h-5 text-gray-600" />
+                              </button>
+                              <button
+                                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                                onClick={() => handleDelete(event.id)}
+                                title="Delete Event"
+                              >
+                                <Trash2 className="w-5 h-5 text-red-600" />
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+
+                      <p className="text-gray-600 mb-4">{event.description}</p>
+
+                      <div className="flex items-center gap-2">
+                        {isReportsView ? (
+                          <Button
+                            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+                            onClick={() => handleViewReport(event.id)}
                           >
-                            <Info className="w-5 h-5 text-blue-600" />
-                          </button>
+                            <FileText className="w-4 h-4" />
+                            View Attendance Report
+                          </Button>
+                        ) : (
+                          isUpcoming && (
+                            <Button
+                              className={`flex items-center gap-2 ${
+                                event.Registration.some(
+                                  (reg) => reg.userId === user?.data.id
+                                )
+                                  ? 'bg-red-600 hover:bg-red-700'
+                                  : 'bg-emerald-600 hover:bg-emerald-700'
+                              }`}
+                              onClick={() =>
+                                event.Registration.some(
+                                  (reg) => reg.userId === user?.data.id
+                                )
+                                  ? handleUnRegistration(event.id)
+                                  : handleRegistration(event.id)
+                              }
+                            >
+                              {pendingRegistrations[event.id] ? (
+                                'Processing...'
+                              ) : event.Registration.some(
+                                  (reg) => reg.userId === user?.data.id
+                                ) ? (
+                                <>
+                                  <UserMinus className="w-4 h-4" />
+                                  Unregister
+                                </>
+                              ) : (
+                                <>
+                                  <UserPlus className="w-4 h-4" />
+                                  Register for Event
+                                </>
+                              )}
+                            </Button>
+                          )
                         )}
-                        {user?.data.role === 'ADMIN' && !isReportsView && (
-                          <>
-                            <button
-                              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                              onClick={() => {
-                                navigate(`/dashboard/update-event/${event.id}`);
-                              }}
-                              title="Edit Event"
-                            >
-                              <Pencil className="w-5 h-5 text-gray-600" />
-                            </button>
-                            <button
-                              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                              onClick={() => handleDelete(event.id)}
-                              title="Delete Event"
-                            >
-                              <Trash2 className="w-5 h-5 text-red-600" />
-                            </button>
-                          </>
+                        {!isReportsView && isPast && (
+                          <Button
+                            variant="destructive"
+                            className="cursor-not-allowed"
+                            disabled
+                          >
+                            Event Closed
+                          </Button>
+                        )}
+
+                        {isDeletePending && pendingDeletion[event.id] && (
+                          <div>Deleting event...</div>
                         )}
                       </div>
-                    </div>
-
-                    <p className="text-gray-600 mb-4">{event.description}</p>
-
-                    <div className="flex items-center gap-2">
-                      {isReportsView ? (
-                        <Button
-                          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
-                          onClick={() => handleViewReport(event.id)}
-                        >
-                          <FileText className="w-4 h-4" />
-                          View Attendance Report
-                        </Button>
-                      ) : (
-                        isUpcoming && (
-                          <Button
-                            className={`flex items-center gap-2 ${
-                              event.Registration.some(
-                                (reg) => reg.userId === user?.data.id
-                              )
-                                ? 'bg-red-600 hover:bg-red-700'
-                                : 'bg-emerald-600 hover:bg-emerald-700'
-                            }`}
-                            onClick={() =>
-                              event.Registration.some(
-                                (reg) => reg.userId === user?.data.id
-                              )
-                                ? handleUnRegistration(event.id)
-                                : handleRegistration(event.id)
-                            }
-                          >
-                            {pendingRegistrations[event.id] ? (
-                              'Processing...'
-                            ) : event.Registration.some(
-                                (reg) => reg.userId === user?.data.id
-                              ) ? (
-                              <>
-                                <UserMinus className="w-4 h-4" />
-                                Unregister
-                              </>
-                            ) : (
-                              <>
-                                <UserPlus className="w-4 h-4" />
-                                Register for Event
-                              </>
-                            )}
-                          </Button>
-                        )
-                      )}
-                      {!isReportsView && isPast && (
-                        <Button
-                          variant="destructive"
-                          className="cursor-not-allowed"
-                          disabled
-                        >
-                          Event Closed
-                        </Button>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+                    </CardContent>
+                  </Card>
+                );
+              })}
           </CardContent>
         </Card>
       </div>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserEventRegistrations } from '@/hooks/useEventRegistration';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -22,12 +23,25 @@ const UserEventRegistrations = () => {
     setSelectedEvent(null);
   };
 
+  if (!userEventRegistrations?.data?.length) {
+    return (
+      <Card className="w-full">
+        <CardContent className="p-6">
+          <p className="text-center text-gray-500">
+            You are not registered for any event at the moment.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <div className="max-w-3xl mx-auto">
-      <h1 className="text-3xl font-bold mt-12 mb-3">
-        List of your Registered Events
-      </h1>
-      {userEventRegistrations?.data.length > 0 ? (
+      <CardHeader>
+        <CardTitle>Registered Events</CardTitle>
+      </CardHeader>
+
+      {userEventRegistrations?.data.length > 0 && (
         <div className="bg-white shadow-md rounded-lg divide-y divide-gray-200">
           {userEventRegistrations.data.map((registration, index) => (
             <div
@@ -54,10 +68,6 @@ const UserEventRegistrations = () => {
             </div>
           ))}
         </div>
-      ) : (
-        <p className="text-center text-gray-500 my-4">
-          You have not registered for any events yet.
-        </p>
       )}
 
       <Dialog open={!!selectedEvent} onOpenChange={handleCloseDialog}>

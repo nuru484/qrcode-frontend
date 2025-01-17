@@ -102,7 +102,7 @@ const Event = () => {
       <Card className="w-full max-w-3xl mx-auto mt-8">
         <CardContent className="p-6">
           <div className="text-red-500">
-            Error: {error?.message} {deleteError?.message}
+            {error?.message} {deleteError?.message}
             {registrationError?.message}
             {unRegistrationError?.message}
           </div>
@@ -138,6 +138,7 @@ const Event = () => {
     if (window.confirm('Are you sure you want to delete this event?')) {
       deleteEvent({ id });
       refetchEvents();
+      navigate('/dashboard/events');
     }
   };
 

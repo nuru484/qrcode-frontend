@@ -43,7 +43,7 @@ export const useEvents = () => {
     queryFn: fetchEvents,
     staleTime: 1000 * 60 * 5,
     cacheTime: 1000 * 60 * 30,
-    retry: 3,
+    retry: 1,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
   });
@@ -70,8 +70,13 @@ export const useUpdateEvent = () => {
 };
 
 export const useDeleteEvent = () => {
+  const queryClient = useQueryClient();
+
   const mutation = useMutation({
     mutationFn: ({ id }) => deleteEvent(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['events']);
+    },
   });
 
   return mutation;

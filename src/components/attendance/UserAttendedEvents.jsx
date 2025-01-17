@@ -1,4 +1,3 @@
-import React from 'react';
 import { useUserAttendedEvents } from '@/hooks/useAttendance';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
