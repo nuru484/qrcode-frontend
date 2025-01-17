@@ -329,7 +329,7 @@ const Events = () => {
 
                       <p className="text-gray-600 mb-4">{event.description}</p>
 
-                      <div className="flex items-center justify-center md:justify-normal gap-2">
+                      <div className="flex items-center md:justify-normal gap-2">
                         {isReportsView ? (
                           <Button
                             className="flex items-center justify-start gap-2 bg-blue-600 hover:bg-blue-700"
