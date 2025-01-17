@@ -279,10 +279,18 @@ const Events = () => {
                   >
                     <CardContent className="p-6">
                       <div className="flex flex-wrap md:flex-nowrap justify-between items-start mb-2">
-                        <h3 className="text-xl font-semibold order-2 md:order-1">
+                        <h3
+                          className={`text-xl font-semibold   ${
+                            !isReportsView && 'order-2'
+                          } md:order-1`}
+                        >
                           {event.title}
                         </h3>
-                        <div className="flex items-center gap-2 order-1 md:order-2">
+                        <div
+                          className={`flex items-center gap-2 ${
+                            !isReportsView && 'order-1'
+                          }  md:order-2`}
+                        >
                           {!isReportsView && (
                             <button
                               className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -321,14 +329,14 @@ const Events = () => {
 
                       <p className="text-gray-600 mb-4">{event.description}</p>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center justify-center md:justify-normal gap-2">
                         {isReportsView ? (
                           <Button
-                            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+                            className="flex items-center justify-start gap-2 bg-blue-600 hover:bg-blue-700"
                             onClick={() => handleViewReport(event.id)}
                           >
                             <FileText className="w-4 h-4" />
-                            View Attendance Report
+                            Attendance Report
                           </Button>
                         ) : (
                           isUpcoming && (
