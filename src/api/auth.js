@@ -5,7 +5,7 @@ export const fetchUser = async () => {
 };
 
 export const login = async (credentials) => {
-  return await api.post('/auth/login', { credentials });
+  return await api.post('/auth/login', credentials);
 };
 
 export const signup = async (credentials) => {
