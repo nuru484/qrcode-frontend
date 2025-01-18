@@ -10,6 +10,10 @@ class APIError extends Error {
   }
 }
 
+if (!navigator.cookieEnabled) {
+  console.log('Cookie is being blocked.');
+}
+
 const serverURL = import.meta.env.VITE_SERVER_URL;
 
 const api = axios.create({
