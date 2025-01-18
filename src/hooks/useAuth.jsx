@@ -28,8 +28,15 @@ export const useAuth = () => {
 export const useLogin = () => {
   const mutation = useMutation({
     mutationFn: login,
-    onSuccess: () => {
+    onSuccess: (response) => {
       console.log('login success.');
+      // Try to detect if cookies are enabled
+      const cookiesEnabled = navigator.cookieEnabled;
+
+      if (!cookiesEnabled) {
+        // If cookies are disabled, store session ID in localStorage
+        localStorage.setItem('sessionId', response.data.sessionId);
+      }
     },
     onError: (error) => {
       console.error('Login failed:', error);

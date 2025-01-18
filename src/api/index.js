@@ -10,10 +10,6 @@ class APIError extends Error {
   }
 }
 
-if (!navigator.cookieEnabled) {
-  console.log('Cookie is being blocked.');
-}
-
 const serverURL = import.meta.env.VITE_SERVER_URL;
 
 const api = axios.create({
@@ -22,9 +18,22 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 });
 
-api.defaults.withCredentials = true;
+// Interceptor to handle cookie-disabled scenarios
+api.interceptors.request.use(
+  (config) => {
+    const sessionId = localStorage.getItem('sessionId');
+    if (sessionId) {
+      config.headers['x-session-id'] = sessionId;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
 // Add a response interceptor
 api.interceptors.response.use(
