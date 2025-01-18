@@ -21,14 +21,6 @@ const api = axios.create({
   withCredentials: true,
 });
 
-const sessionId = localStorage.getItem('sessionId');
-
-console.log('SessionId in intercepters:' + sessionId);
-
-if (sessionId) {
-  api.defaults.headers.common['x-session-id'] = sessionId;
-}
-
 // Add a response interceptor
 api.interceptors.response.use(
   (response) => {
