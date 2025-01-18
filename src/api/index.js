@@ -21,21 +21,13 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// Interceptor to handle cookie-disabled scenarios
-api.interceptors.request.use(
-  (config) => {
-    const sessionId = localStorage.getItem('sessionId');
+const sessionId = localStorage.getItem('sessionId');
 
-    console.log('SessionId in intercepters:' + sessionId);
-    if (sessionId) {
-      config.headers['x-session-id'] = sessionId;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
+console.log('SessionId in intercepters:' + sessionId);
+
+if (sessionId) {
+  api.defaults.headers.common['x-session-id'] = sessionId;
+}
 
 // Add a response interceptor
 api.interceptors.response.use(

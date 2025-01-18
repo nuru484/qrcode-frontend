@@ -11,8 +11,16 @@ const LoginPage = () => {
 
   const onSubmit = async (data) => {
     login(data, {
-      onSuccess: () => {
+      onSuccess: (response) => {
         setIsLoggedIn(true);
+
+        const cookiesEnabled = navigator.cookieEnabled;
+
+        console.log('Cookies Status: ' + cookiesEnabled);
+
+        localStorage.setItem('sessionId', response.sessionId);
+
+        console.log(response);
       },
     });
   };
