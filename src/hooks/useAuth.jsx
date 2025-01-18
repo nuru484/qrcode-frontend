@@ -33,6 +33,8 @@ export const useLogin = () => {
       // Try to detect if cookies are enabled
       const cookiesEnabled = navigator.cookieEnabled;
 
+      console.log('Cookies Status: ' + cookiesEnabled);
+
       if (!cookiesEnabled) {
         // If cookies are disabled, store session ID in localStorage
         localStorage.setItem('sessionId', response.data.sessionId);
