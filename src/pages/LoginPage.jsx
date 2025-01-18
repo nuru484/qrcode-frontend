@@ -10,7 +10,6 @@ const LoginPage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const onSubmit = async (data) => {
-    data.withCredentials = true;
     login(data, {
       onSuccess: () => {
         setIsLoggedIn(true);
