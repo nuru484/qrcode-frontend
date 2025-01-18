@@ -1,4 +1,5 @@
-// Custom API Error class remains the same
+import axios from 'axios';
+
 class APIError extends Error {
   constructor(message, status, type, details = null) {
     super(message);
@@ -10,56 +11,40 @@ class APIError extends Error {
 }
 
 const serverURL = import.meta.env.VITE_SERVER_URL;
-const baseURL = `${serverURL}/api/v1`;
 
-// Default request timeout function
-const timeout = (ms) => {
-  return new Promise((_, reject) => {
-    setTimeout(() => {
-      reject(new APIError('Request timeout', 0, 'TIMEOUT_ERROR'));
-    }, ms);
-  });
-};
+const api = axios.create({
+  baseURL: `${serverURL}/api/v1`,
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
-// Helper to combine base URL with endpoint
-const createURL = (endpoint) => {
-  return `${baseURL}${endpoint}`;
-};
+api.defaults.withCredentials = true;
 
-// Core fetch function with timeout and error handling
-async function fetchWithTimeout(url, options = {}) {
-  try {
-    const controller = new AbortController();
-    const timeoutDuration = options.timeout || 10000;
+// Add a response interceptor
+api.interceptors.response.use(
+  (response) => {
+    // Automatically parse JSON responses
+    return response.data;
+  },
+  async (error) => {
+    if (error.response) {
+      // Server-side error
+      const { data, status } = error.response;
 
-    const response = await Promise.race([
-      fetch(url, {
-        ...options,
-        credentials: 'include', // Equivalent to withCredentials
-        signal: controller.signal,
-        headers: {
-          'Content-Type': 'application/json',
-          ...options.headers,
-        },
-      }),
-      timeout(timeoutDuration),
-    ]);
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      let message = 'An error occurred';
-      let details = null;
-
+      // If errors are available in response, extract the messages
+      let message = 'An error occurred'; // Default message
       if (data.errors && Array.isArray(data.errors)) {
+        // If there are multiple validation errors, we join them into a single message
         message = data.errors.map((err) => err.message).join(', ');
-        details = data.errors;
       } else if (data.message) {
+        // Fallback if there's a top-level message
         message = data.message;
       }
 
       const type = data.type || 'UNKNOWN_ERROR';
-      const status = response.status;
+      const details = data.errors || null;
 
       if (status === 400 || status === 422) {
         throw new APIError(message, status, 'VALIDATION_ERROR', details);
@@ -67,65 +52,16 @@ async function fetchWithTimeout(url, options = {}) {
 
       console.log(`message: ${message}`);
       throw new APIError(message, status, type);
-    }
-
-    return data;
-  } catch (error) {
-    if (error instanceof APIError) {
-      throw error;
-    }
-
-    if (error.name === 'AbortError') {
-      throw new APIError('Request was aborted', 0, 'ABORT_ERROR');
-    }
-
-    if (!navigator.onLine || error instanceof TypeError) {
+    } else if (error.request) {
+      // Network error
       throw new APIError('Network error', 0, 'NETWORK_ERROR');
+    } else if (error.message === 'canceled') {
+      // Request aborted
+      throw new APIError('Request was aborted', 0, 'ABORT_ERROR');
     }
 
     throw new APIError('An unexpected error occurred', 0, 'UNEXPECTED_ERROR');
   }
-}
-
-// API client implementation
-const api = {
-  async get(endpoint, options = {}) {
-    return fetchWithTimeout(createURL(endpoint), {
-      ...options,
-      method: 'GET',
-    });
-  },
-
-  async post(endpoint, data, options = {}) {
-    return fetchWithTimeout(createURL(endpoint), {
-      ...options,
-      method: 'POST',
-      body: JSON.stringify(data),
-    });
-  },
-
-  async put(endpoint, data, options = {}) {
-    return fetchWithTimeout(createURL(endpoint), {
-      ...options,
-      method: 'PUT',
-      body: JSON.stringify(data),
-    });
-  },
-
-  async patch(endpoint, data, options = {}) {
-    return fetchWithTimeout(createURL(endpoint), {
-      ...options,
-      method: 'PATCH',
-      body: JSON.stringify(data),
-    });
-  },
-
-  async delete(endpoint, options = {}) {
-    return fetchWithTimeout(createURL(endpoint), {
-      ...options,
-      method: 'DELETE',
-    });
-  },
-};
+);
 
 export { api, APIError };
