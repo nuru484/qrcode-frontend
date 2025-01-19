@@ -1,5 +1,6 @@
 import { useLogin } from '@/hooks/useAuth';
 import LoginForm from '@/components/LoginForm';
+import encryptStorage from '@/lib/encryptedStorage';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useState } from 'react';
 import { Navigate } from 'react-router-dom';
@@ -11,8 +12,10 @@ const LoginPage = () => {
 
   const onSubmit = async (data) => {
     login(data, {
-      onSuccess: () => {
+      onSuccess: (response) => {
         setIsLoggedIn(true);
+        encryptStorage.setItem('jwtAccessToken', response.accessToken);
+        encryptStorage.setItem('jwtRefreshToken', response.refreshToken);
       },
     });
   };

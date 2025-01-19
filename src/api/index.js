@@ -1,4 +1,5 @@
 import axios from 'axios';
+import encryptStorage from '@/lib/encryptedStorage';
 
 class APIError extends Error {
   constructor(message, status, type, details = null) {
@@ -18,8 +19,62 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true,
 });
+
+api.interceptors.request.use(
+  (config) => {
+    const token = encryptStorage.getItem('jwtAccessToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (
+      error.response?.status === 401 ||
+      (error.response?.status === 403 && !originalRequest._retry)
+    ) {
+      originalRequest._retry = true;
+
+      try {
+        const refreshToken = encryptStorage.getItem('jwtRefreshToken');
+        if (!refreshToken) {
+          throw new Error('No refresh token available');
+        }
+
+        const { data } = await axios.post(
+          `${serverURL}/api/v1/refreshToken`,
+          {},
+          {
+            headers: { Authorization: `Bearer ${refreshToken}` },
+          }
+        );
+
+        const newAccessToken = data.newAccessToken;
+        const newRefreshToken = data.newRefreshToken;
+
+        await encryptStorage.setItem('jwtAccessToken', newAccessToken);
+        await encryptStorage.setItem('jwtRefreshToken', newRefreshToken);
+
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        return axios(originalRequest);
+      } catch (err) {
+        console.error('Token refresh failed', err);
+        encryptStorage.removeItem('jwtAccessToken');
+        encryptStorage.removeItem('jwtRefreshToken');
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
 
 // Add a response interceptor
 api.interceptors.response.use(

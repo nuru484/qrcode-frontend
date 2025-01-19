@@ -12,12 +12,7 @@ export const useAuth = () => {
     isError,
   } = useQuery({
     queryKey: ['user'],
-    queryFn: fetchUser,
-    staleTime: 1000 * 60 * 5,
-    cacheTime: 1000 * 60 * 30,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
+    queryFn: () => fetchUser(),
   });
 
   const refetchUser = () => queryClient.invalidateQueries(['user']);
