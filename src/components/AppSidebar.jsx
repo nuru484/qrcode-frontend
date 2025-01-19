@@ -70,7 +70,7 @@ export function AppSidebar() {
   const isAdmin = user?.data?.role === 'ADMIN';
   const items = React.useMemo(() => getMenuItems(isAdmin), [isAdmin]);
   const navigate = useNavigate();
-  const { mutate: logout, isPending } = useLogout();
+  const logout = useLogout();
 
   return (
     <Sidebar className="border-r border-emerald-200 bg-emerald-50">
@@ -180,11 +180,7 @@ export function AppSidebar() {
                   tabIndex={0}
                 >
                   <User2 className="mr-2 h-4 w-4" />
-                  <span>
-                    {isPending
-                      ? 'Signing Out...'
-                      : user?.data?.username || 'Username'}
-                  </span>
+                  <span>{user?.data?.username || 'Username'}</span>
 
                   <ChevronUp className="ml-auto h-4 w-4" />
                 </SidebarMenuButton>

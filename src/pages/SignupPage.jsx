@@ -11,16 +11,31 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { CircleAlert } from 'lucide-react';
+import { useLogin } from '@/hooks/useAuth';
+import encryptStorage from '@/lib/encryptedStorage';
 
 const SignupPage = () => {
   const { mutate: signup, isPending, isError, error } = useSignup();
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
+  const { mutate: login } = useLogin();
 
   const onSubmit = async (data) => {
     signup(data, {
       onSuccess: () => {
         setSuccess(true);
+
+        const loginDetails = {
+          username: data.username,
+          password: data.password,
+        };
+
+        login(loginDetails, {
+          onSuccess: (response) => {
+            encryptStorage.setItem('jwtAccessToken', response.accessToken);
+            encryptStorage.setItem('jwtRefreshToken', response.refreshToken);
+          },
+        });
       },
     });
   };

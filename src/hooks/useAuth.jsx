@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchUser, login, logout } from '@/api/auth';
+import { fetchUser, login } from '@/api/auth';
 import { useNavigate } from 'react-router-dom';
+import encryptStorage from '@/lib/encryptedStorage';
 
 export const useAuth = () => {
   const queryClient = useQueryClient();
@@ -37,15 +38,15 @@ export const useLogin = () => {
 export const useLogout = () => {
   const navigate = useNavigate();
 
-  const mutation = useMutation({
-    mutationFn: logout,
-    onSuccess: () => {
+  const logout = async () => {
+    try {
+      await encryptStorage.removeItem('jwtAccessToken');
+      await encryptStorage.removeItem('jwtRefreshToken');
       navigate('/login');
-    },
-    onError: (error) => {
+    } catch (error) {
       console.error('Logout failed:', error);
-    },
-  });
+    }
+  };
 
-  return mutation;
+  return logout;
 };

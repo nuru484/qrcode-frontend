@@ -1,15 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useContext } from 'react';
 import {
   checkEventRegistrationStatus,
   registerForEvent,
   unRegisterForEvent,
   fetchUserEventRegistrations,
 } from '@/api/eventRegistration';
-import RegistrationContext from '@/context/EventRegistrationContext';
-
-export const useEventRegistrationContext = () =>
-  useContext(RegistrationContext);
 
 export const useCheckEventRegistrationStatus = (credentials) => {
   const queryClient = useQueryClient();

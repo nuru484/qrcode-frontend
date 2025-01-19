@@ -27,7 +27,6 @@ import {
   useRegisterForEvent,
   useUnRegisterForEvent,
 } from '@/hooks/useEventRegistration';
-import { useEventRegistrationContext } from '@/hooks/useEventRegistration';
 
 const Event = () => {
   const { id } = useParams();
@@ -59,8 +58,6 @@ const Event = () => {
 
   const [qrCode, setQrCode] = useState(null);
   const [showQRDialog, setShowQRDialog] = useState(false);
-
-  const { setRegistrationCodes } = useEventRegistrationContext();
 
   useEffect(() => {
     if (qrCode) {
@@ -147,14 +144,7 @@ const Event = () => {
       const data = { userId: user?.data.id, eventId: event?.data.id };
       registerForEvent(data, {
         onSuccess: (response) => {
-          setRegistrationCodes((prev) => {
-            const updatedCodes = [
-              ...(prev || []),
-              { data: response.data, eventId: response.eventId },
-            ];
-            setQrCode(response.data);
-            return updatedCodes;
-          });
+          setQrCode(response.data);
           refetchEvent();
           refetchEvents();
         },

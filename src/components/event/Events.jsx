@@ -26,7 +26,6 @@ import {
 import {
   useRegisterForEvent,
   useUnRegisterForEvent,
-  useEventRegistrationContext,
 } from '@/hooks/useEventRegistration';
 
 const Events = () => {
@@ -35,7 +34,6 @@ const Events = () => {
   const location = useLocation();
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  const { setRegistrationCodes } = useEventRegistrationContext();
   const [showUnregisterAlert, setShowUnregisterAlert] = useState(false);
   const [qrCode, setQrCode] = useState(null);
   const [showQRDialog, setShowQRDialog] = useState(false);
@@ -115,14 +113,7 @@ const Events = () => {
           [eventId]: false,
         }));
 
-        setRegistrationCodes((prev) => {
-          const updatedCodes = [
-            ...(prev || []),
-            { data: response.data, eventId: response.eventId },
-          ];
-          setQrCode(response.data);
-          return updatedCodes;
-        });
+        setQrCode(response.data);
 
         refetchEvents();
         queryClient.invalidateQueries(['event', eventId]);
