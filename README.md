@@ -4,6 +4,8 @@ A modern web application for managing event attendance using QR codes. This syst
 
 [LIve Here](https://qrcode-frontend-lovat.vercel.app)
 
+[Backend Code](https://github.com/nuru484/qrcode)
+
 ## Features
 
 ### For Administrators
