@@ -2,6 +2,8 @@
 
 A modern web application for managing event attendance using QR codes. This system provides an intuitive interface for event management, user registration, and QR code-based attendance tracking.
 
+[Check it out here](https://qrcode-frontend-lovat.vercel.app)
+
 ## Features
 
 ### For Administrators
