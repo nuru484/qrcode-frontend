@@ -7,32 +7,36 @@ import { useAuth } from '@/hooks/useAuth';
 import { useEvents } from '@/hooks/useEvent';
 import { useUserAttendedEvents } from '@/hooks/useAttendance';
 import { useUserEventRegistrations } from '@/hooks/useEventRegistration';
-import { useState } from 'react';
+import { useMemo } from 'react';
 
 export default function Layout() {
   const { user } = useAuth();
   const { events } = useEvents();
-  const { userAttendedEvents = [] } =
+  const { userAttendedEvents = {} } =
     useUserAttendedEvents(user?.data?.id) || {};
-  const { userEventRegistrations } = useUserEventRegistrations(user?.data.id);
+  const { userEventRegistrations = {} } =
+    useUserEventRegistrations(user?.data?.id) || {};
 
   const location = useLocation();
-  const [activeTab, setActiveTab] = useState('all');
 
-  const tabEventMap = {
-    all: events?.data || [],
-    attended: userAttendedEvents?.data || [],
-    registered: userEventRegistrations?.data || [],
-  };
+  const tabEventMap = useMemo(
+    () => ({
+      events: events?.data || [],
+      attendedEvents: userAttendedEvents?.data || [],
+      registeredEvents: userEventRegistrations?.data || [],
+    }),
+    [events, userAttendedEvents, userEventRegistrations]
+  );
 
-  const selectedEvents = tabEventMap[activeTab] || [];
-
-  console.log(location.pathname);
-
-  const query = selectedEvents.map((event) => ({
-    title: event.title,
-    description: event.description,
-  }));
+  const query = useMemo(() => {
+    if (location.pathname.includes('/dashboard/attendance')) {
+      return tabEventMap.attendedEvents;
+    }
+    if (location.pathname.includes('/dashboard/registration')) {
+      return tabEventMap.registeredEvents;
+    }
+    return tabEventMap.events;
+  }, [location.pathname, tabEventMap]);
 
   return (
     <SidebarProvider>
@@ -40,7 +44,6 @@ export default function Layout() {
       <main className="w-full max-w-screen-lg p-4 space-y-4">
         <div className="flex justify-between items-center gap-4 sticky top-5 bg-white p-6 shadow-lg z-20">
           <SidebarTrigger className="bg-emerald-600 hover:bg-emerald-500 " />
-
           <SearchBox query={query} />
         </div>
         {location.pathname === '/dashboard' && <Dashboard />}

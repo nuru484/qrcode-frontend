@@ -231,7 +231,7 @@ const Event = () => {
               <Button
                 variant="outline"
                 onClick={() => {
-                  navigate(`/dashboard/update-event/${id}`);
+                  navigate(`/dashboard/events/update-event/${id}`);
                 }}
               >
                 <Pencil className="w-4 h-4 " />

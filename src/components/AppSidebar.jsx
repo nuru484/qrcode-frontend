@@ -44,7 +44,9 @@ const getMenuItems = (isAdmin) => [
     title: 'Event',
     icon: CalendarCheck2,
     subItems: [
-      ...(isAdmin ? [{ title: 'Create Event', url: 'create-event' }] : []),
+      ...(isAdmin
+        ? [{ title: 'Create Event', url: 'events/create-event' }]
+        : []),
       { title: 'View Events', url: 'events' },
     ],
   },
@@ -52,15 +54,19 @@ const getMenuItems = (isAdmin) => [
     title: 'Attendance',
     icon: UserRoundPen,
     subItems: [
-      ...(isAdmin ? [{ title: 'Scan QR Conde', url: 'scan-qr-code' }] : []),
-      { title: 'View Reports', url: 'view-reports' },
-      { title: 'Attended Events', url: 'attended-events' },
+      ...(isAdmin
+        ? [{ title: 'Scan QR Conde', url: 'registration/scan-qr-code' }]
+        : []),
+      { title: 'View Reports', url: 'attendance/view-reports' },
+      { title: 'Attended Events', url: 'attendance/attended-events' },
     ],
   },
   {
     title: 'Event Registration',
     icon: NotebookPen,
-    subItems: [{ title: 'Registered Events', url: 'registered-events' }],
+    subItems: [
+      { title: 'Registered Events', url: 'registration/registered-events' },
+    ],
   },
 ];
 

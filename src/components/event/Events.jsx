@@ -40,7 +40,8 @@ const Events = () => {
   const [pendingRegistrations, setPendingRegistrations] = useState({});
   const [pendingDeletion, setPendingDeletion] = useState({});
 
-  const isReportsView = location.pathname === '/dashboard/view-reports';
+  const isReportsView =
+    location.pathname === '/dashboard/attendance/view-reports';
 
   const {
     mutate: deleteEvent,
@@ -145,7 +146,7 @@ const Events = () => {
   };
 
   const handleViewReport = (eventId) => {
-    navigate(`/dashboard/event/${eventId}/attendance-report`);
+    navigate(`/dashboard/attendance/event/${eventId}/attendance-report`);
   };
 
   if (isLoading) {
@@ -286,7 +287,7 @@ const Events = () => {
                             <button
                               className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                               onClick={() =>
-                                navigate(`/dashboard/event/${event.id}`)
+                                navigate(`/dashboard/events/event/${event.id}`)
                               }
                               title="View Details"
                             >
@@ -299,7 +300,7 @@ const Events = () => {
                                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
                                 onClick={() => {
                                   navigate(
-                                    `/dashboard/update-event/${event.id}`
+                                    `/dashboard/events/update-event/${event.id}`
                                   );
                                 }}
                                 title="Edit Event"

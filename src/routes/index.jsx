@@ -26,11 +26,11 @@ const Routes = () => {
           errorElement: <ErrorPage />,
           children: [
             {
-              path: '/dashboard/create-event',
+              path: '/dashboard/events/create-event',
               element: <CreateEventPage />,
             },
             {
-              path: '/dashboard/update-event/:id',
+              path: '/dashboard/events/update-event/:id',
               element: <UpdateEventPage />,
             },
             {
@@ -38,28 +38,28 @@ const Routes = () => {
               element: <Events />,
             },
             {
-              path: '/dashboard/event/:id',
+              path: '/dashboard/events/event/:id',
               element: <Event />,
             },
             {
-              path: '/dashboard/registered-events',
+              path: '/dashboard/registration/registered-events',
               element: <UserEventRegistrations />,
             },
             {
-              path: '/dashboard/scan-qr-code',
+              path: '/dashboard/registration/scan-qr-code',
               element: <QRScanner />,
             },
 
             {
-              path: '/dashboard/attended-events',
+              path: '/dashboard/attendance/attended-events',
               element: <UserAttendedEvents />,
             },
             {
-              path: '/dashboard/view-reports',
+              path: '/dashboard/attendance/view-reports',
               element: <Events />,
             },
             {
-              path: '/dashboard/event/:eventId/attendance-report',
+              path: '/dashboard/attendance/event/:eventId/attendance-report',
               element: <EventAttendanceReports />,
             },
           ],
