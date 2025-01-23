@@ -57,10 +57,10 @@ const UserEventRegistrations = () => {
                 />
                 <div>
                   <h3 className="font-medium text-gray-900">
-                    {registration.event.title}
+                    {registration.title}
                   </h3>
                   <p className="text-sm text-gray-500">
-                    {new Date(registration.event.date).toLocaleDateString()}
+                    {new Date(registration.date).toLocaleDateString()}
                   </p>
                 </div>
               </div>
@@ -73,7 +73,7 @@ const UserEventRegistrations = () => {
       <Dialog open={!!selectedEvent} onOpenChange={handleCloseDialog}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>{selectedEvent?.event.title}</DialogTitle>
+            <DialogTitle>{selectedEvent?.title}</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col items-center p-4">
             <img
@@ -82,11 +82,10 @@ const UserEventRegistrations = () => {
               className="w-64 h-64 object-contain"
             />
             <p className="mt-4 text-sm text-gray-500">
-              Event Date:{' '}
-              {new Date(selectedEvent?.event.date).toLocaleDateString()}
+              Event Date: {new Date(selectedEvent?.date).toLocaleDateString()}
             </p>
             <p className="text-sm text-gray-500">
-              Location: {selectedEvent?.event.location}
+              Location: {selectedEvent?.location}
             </p>
           </div>
         </DialogContent>

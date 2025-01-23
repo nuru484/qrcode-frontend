@@ -43,24 +43,22 @@ const UserAttendedEvents = () => {
         {userAttendedEvents.data?.map((eventData) => (
           <Card key={eventData.id} className="overflow-hidden">
             <CardContent className="p-6">
-              <h3 className="text-xl font-semibold mb-4">
-                {eventData.event.title}
-              </h3>
+              <h3 className="text-xl font-semibold mb-4">{eventData.title}</h3>
 
               <div className="space-y-2 text-sm text-gray-600">
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
-                  <span>{formatDate(eventData.event.date)}</span>
+                  <span>{formatDate(eventData.date)}</span>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <Clock className="h-4 w-4" />
-                  <span>{formatTime(eventData.event.date)}</span>
+                  <span>{formatTime(eventData.date)}</span>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4" />
-                  <span>{eventData.event.location}</span>
+                  <span>{eventData.location}</span>
                 </div>
               </div>
 

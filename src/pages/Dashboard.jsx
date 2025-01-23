@@ -12,8 +12,10 @@ import { useMemo } from 'react';
 export default function Layout() {
   const { user } = useAuth();
   const { events } = useEvents();
+
   const { userAttendedEvents = {} } =
     useUserAttendedEvents(user?.data?.id) || {};
+
   const { userEventRegistrations = {} } =
     useUserEventRegistrations(user?.data?.id) || {};
 
@@ -37,8 +39,6 @@ export default function Layout() {
     }
     return tabEventMap.events;
   }, [location.pathname, tabEventMap]);
-
-  console.log(query);
 
   return (
     <SidebarProvider>
