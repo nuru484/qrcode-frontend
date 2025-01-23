@@ -6,7 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Search } from 'lucide-react';
+import { Search, ChevronRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 const SearchBox = ({ query = [] }) => {
@@ -38,10 +38,10 @@ const SearchBox = ({ query = [] }) => {
       </div>
 
       <Dialog open={searching} onOpenChange={setSearching}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md bg-white rounded-xl shadow-2xl">
           <DialogHeader>
             <DialogTitle className="space-y-4">
-              <span>Search</span>
+              <span className="text-xl font-bold text-gray-800">Search</span>
               <div className="relative">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-emerald-500" />
                 <Input
@@ -55,15 +55,34 @@ const SearchBox = ({ query = [] }) => {
             </DialogTitle>
           </DialogHeader>
 
-          <div className="flex flex-col items-center justify-center space-y-4 p-6">
+          <div className="max-h-80 overflow-y-auto">
             {searchResults.length > 0 ? (
-              searchResults.map((result, index) => (
-                <p key={index}>{result.title}</p>
-              ))
+              <div className="divide-y divide-gray-100">
+                {searchResults.map((result, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-4 hover:bg-emerald-50 transition-colors cursor-pointer group"
+                  >
+                    <div className="flex-grow">
+                      <h3 className="text-sm font-semibold text-gray-800 group-hover:text-emerald-600">
+                        {result.title}
+                      </h3>
+                      {result.description && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          {result.description}
+                        </p>
+                      )}
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-gray-400 group-hover:text-emerald-500 opacity-0 group-hover:opacity-100 transition-all" />
+                  </div>
+                ))}
+              </div>
             ) : (
-              <p className="text-sm text-gray-500 text-center">
-                No results found
-              </p>
+              <div className="flex items-center justify-center p-6">
+                <p className="text-sm text-gray-500 text-center bg-gray-50 p-4 rounded-lg">
+                  No results found
+                </p>
+              </div>
             )}
           </div>
         </DialogContent>
@@ -71,8 +90,14 @@ const SearchBox = ({ query = [] }) => {
     </div>
   );
 };
+
 SearchBox.propTypes = {
-  query: PropTypes.array,
+  query: PropTypes.arrayOf(
+    PropTypes.shape({
+      title: PropTypes.string.isRequired,
+      description: PropTypes.string,
+    })
+  ),
 };
 
 export default SearchBox;

@@ -38,6 +38,8 @@ export default function Layout() {
     return tabEventMap.events;
   }, [location.pathname, tabEventMap]);
 
+  console.log(query);
+
   return (
     <SidebarProvider>
       <AppSidebar />
