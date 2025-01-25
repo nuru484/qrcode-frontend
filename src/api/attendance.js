@@ -11,3 +11,7 @@ export const fetchUserAttendedEvents = async (id) => {
 export const fetchEventAttendance = async (id) => {
   return await api.get(`/attendance/event/${id}`);
 };
+
+export const fetchTotalAttendance = async () => {
+  return await api.get(`/attendance/`);
+};
