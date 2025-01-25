@@ -1,6 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { markAttendance, fetchUserAttendedEvents } from '@/api/attendance';
+import {
+  markAttendance,
+  fetchUserAttendedEvents,
+  fetchEventAttendance,
+} from '@/api/attendance';
 
 export const useMarkAttendance = () => {
   const mutation = useMutation({
@@ -40,5 +44,36 @@ export const useUserAttendedEvents = (userId) => {
     isError,
     error,
     refetchUserAttendedEvents,
+  };
+};
+
+export const useEventAttendance = (eventId) => {
+  const queryClient = useQueryClient();
+
+  const {
+    data: eventAttendance,
+    error,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ['eventAttendance', eventId],
+    queryFn: () => fetchEventAttendance(eventId),
+    staleTime: 1000 * 60 * 5,
+    cacheTime: 1000 * 60 * 30,
+    retry: 2,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  });
+
+  const refetchEventAttendance = () =>
+    queryClient.invalidateQueries(['eventAttendance', eventId]);
+
+  return {
+    eventAttendance,
+    isLoading,
+    isError,
+    error,
+    refetchEventAttendance,
   };
 };

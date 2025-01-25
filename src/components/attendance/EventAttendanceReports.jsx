@@ -1,5 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import PropTypes from 'prop-types';
+import { AttendanceReportContextProvider } from '@/context/AttendanceContext';
+import { useAttendanceReportContext } from '@/context/AttendanceContext';
 
 import {
   LineChart,
@@ -32,15 +34,21 @@ const trendData = [
 ];
 
 const EventAttendanceReports = () => {
-  // Mock metrics data
-  const metrics = {
-    totalRegistrations: 60,
-    totalAttendance: 53,
-    attendanceRate: 88.3,
-    avgArrivalTime: '9:45 AM',
-    onTimeRate: 92,
-    lastWeekChange: 15,
-  };
+  const {
+    totalRegistrations,
+    totalAttendances,
+    attendanceRate,
+    averageArrivalTime,
+    onTimePercentage,
+  } = useAttendanceReportContext();
+
+  console.log(
+    totalRegistrations,
+    totalAttendances,
+    attendanceRate,
+    averageArrivalTime,
+    onTimePercentage
+  );
 
   const MetricCard = ({
     title,
@@ -97,76 +105,76 @@ const EventAttendanceReports = () => {
   };
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Event Attendance Report</h1>
-      </div>
+    <AttendanceReportContextProvider>
+      <div className="space-y-6 p-6">
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold">Event Attendance Report</h1>
+        </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <MetricCard
-          title="Total Registrations"
-          value={metrics.totalRegistrations}
-          icon={Users}
-          trend={metrics.lastWeekChange}
-        />
-        <MetricCard
-          title="Total Attendance"
-          value={metrics.totalAttendance}
-          icon={UserCheck}
-          trend={metrics.lastWeekChange}
-        />
-        <MetricCard
-          title="Attendance Rate"
-          value={metrics.attendanceRate}
-          icon={Percent}
-          suffix="%"
-        />
-        <MetricCard
-          title="Average Arrival Time"
-          value={metrics.avgArrivalTime}
-          icon={Clock}
-        />
-        <MetricCard
-          title="On-Time Rate"
-          value={metrics.onTimeRate}
-          icon={CalendarCheck}
-          suffix="%"
-        />
-      </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <MetricCard
+            title="Total Registrations"
+            value={totalRegistrations}
+            icon={Users}
+          />
+          <MetricCard
+            title="Total Attendance"
+            value={totalAttendances}
+            icon={UserCheck}
+          />
+          <MetricCard
+            title="Attendance Rate"
+            value={(attendanceRate * 100).toFixed(1)}
+            icon={Percent}
+            suffix="%"
+          />
+          <MetricCard
+            title="Average Arrival Time"
+            value={averageArrivalTime || 'N/A'}
+            icon={Clock}
+          />
+          <MetricCard
+            title="On-Time Rate"
+            value={onTimePercentage.toFixed(1)}
+            icon={CalendarCheck}
+            suffix="%"
+          />
+        </div>
 
-      <Card className="mt-6">
-        <CardHeader>
-          <CardTitle>Attendance Trend</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart
-                data={trendData}
-                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Line
-                  type="monotone"
-                  dataKey="attendance"
-                  stroke="#2563eb"
-                  name="Attendance"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="registered"
-                  stroke="#9333ea"
-                  name="Registered"
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>Attendance Trend</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart
+                  data={trendData}
+                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis />
+                  <Tooltip />
+                  <Line
+                    type="monotone"
+                    dataKey="attendance"
+                    stroke="#2563eb"
+                    name="Attendance"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="registered"
+                    stroke="#9333ea"
+                    name="Registered"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </AttendanceReportContextProvider>
   );
 };
 
