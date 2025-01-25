@@ -1,7 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import PropTypes from 'prop-types';
-import { AttendanceReportContextProvider } from '@/context/AttendanceContext';
-import { useAttendanceReportContext } from '@/context/AttendanceContext';
+import { useParams } from 'react-router-dom';
 
 import {
   LineChart,
@@ -21,6 +20,7 @@ import {
   Percent,
   CalendarCheck,
 } from 'lucide-react';
+import { useEventAttendance } from '@/hooks/useAttendance';
 
 // Mock data for the attendance trend
 const trendData = [
@@ -34,21 +34,44 @@ const trendData = [
 ];
 
 const EventAttendanceReports = () => {
-  const {
-    totalRegistrations,
-    totalAttendances,
-    attendanceRate,
-    averageArrivalTime,
-    onTimePercentage,
-  } = useAttendanceReportContext();
+  const { eventId } = useParams();
 
-  console.log(
-    totalRegistrations,
-    totalAttendances,
-    attendanceRate,
-    averageArrivalTime,
-    onTimePercentage
-  );
+  const { eventAttendance } = useEventAttendance(eventId);
+
+  const totalRegistrations = 10;
+
+  const totalAttendancesCount = eventAttendance?.data.length || 0;
+
+  const totalAttendances = totalAttendancesCount;
+
+  const attendanceRate =
+    eventAttendance?.data.length > 0
+      ? totalAttendancesCount / totalRegistrations
+      : 0;
+
+  let averageArrivalTime = 'N/A';
+
+  const arrivalTimes = eventAttendance?.data
+    .filter((item) => item.attended && item.attendanceStartTime)
+    .map((item) => new Date(item.attendanceStartTime));
+
+  if (arrivalTimes?.length > 0) {
+    const averageTime =
+      arrivalTimes.reduce((acc, time) => acc + time.getTime(), 0) /
+      arrivalTimes.length;
+
+    averageArrivalTime = new Date(averageTime)
+      .toISOString()
+      .split('T')[1]
+      .split('.')[0];
+  }
+
+  const onTimeCount = eventAttendance?.data.filter(
+    (item) => item.attended && item.attendanceStartTime
+  ).length;
+
+  const onTimePercentage =
+    (onTimeCount / eventAttendance?.data.length) * 100 || 0;
 
   const MetricCard = ({
     title,
@@ -105,76 +128,74 @@ const EventAttendanceReports = () => {
   };
 
   return (
-    <AttendanceReportContextProvider>
-      <div className="space-y-6 p-6">
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">Event Attendance Report</h1>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <MetricCard
-            title="Total Registrations"
-            value={totalRegistrations}
-            icon={Users}
-          />
-          <MetricCard
-            title="Total Attendance"
-            value={totalAttendances}
-            icon={UserCheck}
-          />
-          <MetricCard
-            title="Attendance Rate"
-            value={(attendanceRate * 100).toFixed(1)}
-            icon={Percent}
-            suffix="%"
-          />
-          <MetricCard
-            title="Average Arrival Time"
-            value={averageArrivalTime || 'N/A'}
-            icon={Clock}
-          />
-          <MetricCard
-            title="On-Time Rate"
-            value={onTimePercentage.toFixed(1)}
-            icon={CalendarCheck}
-            suffix="%"
-          />
-        </div>
-
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>Attendance Trend</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  data={trendData}
-                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line
-                    type="monotone"
-                    dataKey="attendance"
-                    stroke="#2563eb"
-                    name="Attendance"
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="registered"
-                    stroke="#9333ea"
-                    name="Registered"
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
+    <div className="space-y-6 p-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">Event Attendance Report</h1>
       </div>
-    </AttendanceReportContextProvider>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <MetricCard
+          title="Total Registrations"
+          value={totalRegistrations}
+          icon={Users}
+        />
+        <MetricCard
+          title="Total Attendance"
+          value={totalAttendances}
+          icon={UserCheck}
+        />
+        <MetricCard
+          title="Attendance Rate"
+          value={(attendanceRate * 100).toFixed(1)}
+          icon={Percent}
+          suffix="%"
+        />
+        <MetricCard
+          title="Average Arrival Time"
+          value={averageArrivalTime || 'N/A'}
+          icon={Clock}
+        />
+        <MetricCard
+          title="On-Time Rate"
+          value={onTimePercentage.toFixed(1)}
+          icon={CalendarCheck}
+          suffix="%"
+        />
+      </div>
+
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle>Attendance Trend</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart
+                data={trendData}
+                margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis />
+                <Tooltip />
+                <Line
+                  type="monotone"
+                  dataKey="attendance"
+                  stroke="#2563eb"
+                  name="Attendance"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="registered"
+                  stroke="#9333ea"
+                  name="Registered"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
