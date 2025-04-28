@@ -1,3 +1,4 @@
+// src/validation/eventValidation.js
 import * as yup from 'yup';
 
 export const eventValidationSchema = yup.object({

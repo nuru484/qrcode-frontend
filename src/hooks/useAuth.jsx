@@ -40,8 +40,8 @@ export const useLogout = () => {
 
   const logout = async () => {
     try {
-      await encryptStorage.removeItem('jwtAccessToken');
-      await encryptStorage.removeItem('jwtRefreshToken');
+      encryptStorage.removeItem('jwtAccessToken');
+      encryptStorage.removeItem('jwtRefreshToken');
       navigate('/login');
     } catch (error) {
       console.error('Logout failed:', error);
