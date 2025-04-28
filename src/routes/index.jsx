@@ -1,3 +1,4 @@
+//src/routes/index.jsx
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import ProtectedRoutes from './ProtectedRoutes';
 import LoginPage from '@/pages/LoginPage';
