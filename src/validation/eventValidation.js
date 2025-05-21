@@ -1,6 +1,8 @@
 // src/validation/eventValidation.js
 import * as yup from 'yup';
 
+
+// update
 export const eventValidationSchema = yup.object({
   title: yup
     .string()
