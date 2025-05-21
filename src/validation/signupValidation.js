@@ -19,6 +19,8 @@ const schema = yup.object({
       /^[a-zA-Z0-9_]+$/,
       'Username can only contain letters, numbers, and underscores'
     ),
+
+  // update
   password: yup
     .string()
     .required('Password is required')
