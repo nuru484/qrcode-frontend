@@ -14,6 +14,7 @@ import QRScanner from '@/components/attendance/ScanQrCode';
 import UserAttendedEvents from '@/components/attendance/UserAttendedEvents';
 import EventAttendanceReports from '@/components/attendance/EventAttendanceReports';
 
+// Importing the necessary components for routing
 const Routes = () => {
   // Routes accessible only to authenticated users
   const protectedRoutes = [
